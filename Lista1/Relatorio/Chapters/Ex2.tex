@@ -1,0 +1,39 @@
+\section{Divergente de Rotacional} \label{sec:ex2}
+Mostre que o divergente do rotacional de uma fun\c{c}\~ao ${f}(x,y,z)$ \'e nulo.
+
+\subsection{Solu\c{c}\~ao}
+Assumindo que a fun\c{c}\~ao ${f}(x,y,z)$ \'e um campo vetorial na forma ${f}(x,y,z) = (P, Q, R)$ e que as fun\c{c}\~oes $P(x,y,z)$, $Q(x,y,z)$ e $R(x,y,z)$ s\~ao fun\c{c}\~oes escalares, o divergente do rotacional de ${f}(x,y,z)$ \'e dado pela Eq. \eqref{eq:rot}
+\begin{equation}
+    \label{eq:rot}
+    \nabla \times {f}(x,y,z) = \left| \begin{array}{ccc}
+        \hat{i} & \hat{j} & \hat{k} \\
+        \frac{\partial}{\partial x} & \frac{\partial}{\partial y} & \frac{\partial}{\partial z} \\
+        P & Q & R
+    \end{array} \right| = 
+    \left(\begin{array}{ccc}
+         \frac{\partial R}{\partial y} - \frac{\partial Q}{\partial z} \\
+        \frac{\partial P}{\partial z} - \frac{\partial R}{\partial x} \\
+         \frac{\partial Q}{\partial x} - \frac{\partial P}{\partial y} 
+    \end{array}
+    \right)
+\end{equation}
+
+O divergente de $\nabla \times {f}(x,y,z)$ \'e dado pela Eq. \eqref{eq:divrot}
+\begin{equation}
+    \label{eq:divrot}
+    \nabla \cdot \nabla \times {f}(x,y,z) = \frac{\partial}{\partial x} \left( \frac{\partial R}{\partial y} - \frac{\partial Q}{\partial z} \right) + 
+    \frac{\partial}{\partial y} \left( \frac{\partial P}{\partial z} - \frac{\partial R}{\partial x} \right) + 
+    \frac{\partial}{\partial z} \left( \frac{\partial Q}{\partial x} - \frac{\partial P}{\partial y} \right).
+\end{equation}
+
+Distribuindo as derivadas parciais obt\'em-se
+\begin{equation*}
+    \div{(\curl{f})} = 
+    \frac{\partial^2 R}{\partial x\partial y} - \frac{\partial^2 Q}{\partial x\partial z} + 
+    \frac{\partial^2 P}{\partial y\partial z} - \frac{\partial^2 R}{\partial y\partial x}  + 
+    \frac{\partial^2 Q}{\partial z\partial x} - \frac{\partial^2 P}{\partial z \partial y},
+\end{equation*}
+como pelo Teorema de Clairut, as derivadas cruzadas s\~ao iguais
+\begin{equation}
+    \div{(\curl{f})} = 0.
+\end{equation}

@@ -1,0 +1,32 @@
+\def\logos{
+    \noindent
+    \raisebox{-.5\height}{\includegraphics[width=2.2cm]{Figures/logo-unicamp.pdf}}
+
+    \vspace*{1.5cm}
+    
+    \noindent
+    \begin{center} \large
+        \MakeUppercase{\Uni}\\
+        \Fac\\
+    \end{center}
+}
+
+\def\openningpage{
+  \logos
+  \vskip 35mm
+  \begin{center}
+    \Large
+      {\bf \@title}
+      \vskip 25mm
+      {\bf Aluno: \@author \\ RA: \RA}
+      \vskip 15mm
+      {{\bf{Docentes}}: \\
+       \advisor \\
+       \coadvisor}
+    \vfill
+    \large
+    Campinas\\\workyear
+  \end{center}
+}
+
+\openningpage
