@@ -1,17 +1,4 @@
 \section{Regra da Cadeia em Fun\c{c}\~oes de 2 Vari\'aveis} 
-Dada a fun\c{c}\~ao
-\begin{equation*}
-    f(x,y) = e^{x(\xi, \eta)} + e^{\sin(x(\xi, \eta) y(\xi, \eta)^3)}
-\end{equation*}
-calcule o gradiente relativo \`as coordenadas param\'etricas $\xi$ e $\eta$, sobre a superf\'icie parametrizada dada por:
-\begin{equation*}
-    \begin{cases}
-        x(\xi, \eta) = \cos(\xi^2) + \sin(\eta + 1) + 5\xi \\
-        y(\xi, \eta) = \sin(\xi^3) + \cos(\eta^2) + 7\eta
-    \end{cases}.
-\end{equation*}
-
-\subsection{Solu\c{c}\~ao}
 O exerc\'icio 3 foi feito utilizando o \textit{software} \texttt{Mathematica} e o c\'odigo utilizado pode ser encontrado no Ap\^endice \ref{sec:github}. 
 
 O gradiente de $f$ em rela\c{c}\~ao \`as coordenadas param\'etricas $\xi$ e $\eta$ \'e dado pela regra da cadeia, expressa pela Eq. \eqref{eq:gradfxy}
@@ -78,7 +65,6 @@ Apresenta-se tamb\'em a compara\c{c}\~ao entre os resultados obtidos pela regra 
 \end{figure}
 
 Como mostrado pela Fig. \ref{fig:gradf}, os resultados alcan\c{c}ados pela regra da cadeia e pelo \texttt{Mathematica} s\~ao iguais, j\'a que a diferen\c{c}a entre os gradientes \'e nula. Tal fato confirma que a implementa\c{c}\~ao da regra da cadeia est\'a correta. Por fim, plota-se os gr\'aficos do gradiente de $f(x(\xi, \eta), y(\xi, \eta))$ na Fig. \ref{fig:gradfplot}.
-
 \begin{figure}[H]
     \centering
     \subfloat[\label{fig:plotGradf}]{\includegraphics[width=0.49\textwidth]{Ex3GradF.pdf}}\hfill
