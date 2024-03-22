@@ -45,6 +45,7 @@
 \usepackage{hyphenat} 
 \usepackage{xspace}
 \usepackage{abntex2cite}
+\usepackage{pdflscape}
 
 %-----------------------------------------------------
 %               DOCUMENT SETTINGS
@@ -87,10 +88,11 @@
 % ----------------------------------------------------
 \begin{document}
 % ------- WORK INFORMATION -------
-\author{Carlos Henrique Chama Puga}
+\author{Carlos Henrique Chama Puga }
 \newcommand{\RA}{195416}
 
 \title{Lista 1 \\ Derivadas, Gradiente, Divergente e Rotacional}
+\newcommand{\theme}{Derivadas, Gradiente, Divergente e Rotacional}
 
 \newcommand{\Uni}{{Universidade Estadual de Campinas}}
 \newcommand{\Fac}{{Faculdade de Engenharia Civil, Arquitetura e Urbanismo}}
@@ -128,7 +130,7 @@
 
 \fancypagestyle{headings}{%
     \fancyhf{}% Limpa todos os campos
-    \fancyhead[L]{Lista 1 - Derivadas, Gradiente, Divergente e Rotacional}% Nome do trabalho à esquerda
+    \fancyhead[L]{\theme}% Nome do trabalho à esquerda
     \fancyhead[R]{\thepage}% Numero da página à direita
     \renewcommand{\headrulewidth}{1pt}%
 }

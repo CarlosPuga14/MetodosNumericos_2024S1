@@ -1,1 +1,46 @@
 \section{Sinais de Divergente e Rotacional em Campos Vetoriais}\label{sec:divrot}
+Os sinais do divergente e do roatcional de cada campo vetorial foi estimado visualmente, j\'a que n\~ao foram passadas as equa\c{c}\~oes dos campos vetoriais. Utilizando o Teorema de Gauss, pode-se tranformar a integral do divergente do campo vetorial no volume, na integral do campo vetorial no contorno, conforme Eq. \eqref{eq:gauss}
+\begin{equation}
+    \int_\Omega \div{\vec{u}} ~d\Omega = \int_{\partial \Omega} \vec{u}\cdot \vec{\hat{n}} ~dS.
+    \label{eq:gauss}
+\end{equation}
+em que $\vec{u}$ \'e o campo vetorial, $\Omega$ \'e o dom\'inio, $\partial \Omega$ \'e o contorno do dom\'inio e $\vec{\hat{n}}$ \'e o vetor normal unit\'ario que aponta para fora do contorno.
+
+Com o Teorema de Gauss, pode-se avaliar o sinal do divergente no contorno para todos os casos propostos. O rotacional ser\'a analisado no dom\'inio como um todo, a partir da apar\^encia do campo vetorial. Os campos s\~ao individualmente analisados nas se\c{c}\~oes \ref{sec:campo1} - \ref{sec:campo4} e os resultados s\~ao sumarizados na Se\c{c}\~ao \ref{sec:res5}.
+
+\subsection{Campo Vetorial 1} \label{sec:campo1}
+O primeiro campo possui vetores paralelos ao eixo $x$, em $y = 0$ e ao eixo $y$, em $x = 0$. Em adi\c{c}\~ao, nas fronteiras, $x = 3$ e $y = 3$, os vetores est\~ao saindo do dom\'inio, resultando em um divergente positivo. 
+
+O paralelismo observado anteriormente aponta que o campo provavelmente \'e composto por vetores da fam\'ilia $\vec{u} = (\alpha x, \beta y, 0)$, em que $\alpha$ e $\beta$ s\~ao constantes reais. O rotacional de um campo dessa fam\'ilia \'e nulo, j\'a que $\nabla \times \vec{u} = \nabla \times (\alpha x, \beta y, 0) = 0$. Ainda leva-se em considera\c{c}\~ao que o campo n\~ao apresenta rota\c{c}\~ao aparente.
+
+\subsection{Campo Vetorial 2} \label{sec:campo2}
+Como as equa\c{c}\~oes dos vetores do segundo campo n\~ao s\~ao de f\'acil suposi\c{c}\~ao, as discuss\~oes s\~ao feitas de maneira qualitativa.
+
+O campo possui apenas vetores saindo  de todos os contornos do dom\'inio, o que resulta em um divergente positivo. O campo apresenta rota\c{c}\~ao no sentido anti-hor\'ario, indicando um rotacional positivo.
+
+\subsection{Campo Vetorial 3} \label{sec:campo3}
+O terceiro campo possui campos vetoriais entrando e saindo do dom\'inio, o que, a princ\'ipio, resultaria em um divergente nulo. No entanto, nota-se que a magnitude dos vetores que entram \'e menor que a magnitude dos vetores que saem, resultando em um divergente positivo. 
+
+O campo apresenta rota\c{c}\~oes iguais, mas opostas ao longo de seu dom\'inio, resultando em um rotacional nulo.
+
+\subsection{Campo Vetorial 4} \label{sec:campo4}
+O quarto e \'ultimo campo apresenta vetores de mesma magnitude entrando e saindo pelos contornos, o que resulta em um divergente nulo. Tamb\'em nota-se rota\c{c}\~oes iguais, mas opostas ao longo do dom\'inio, resultando em um rotacional nulo.
+
+\subsection{Resultados} \label{sec:res5}
+Os resultados s\~ao apresentados resumidamente na Tabela \ref{tab:divrot}.
+\begin{table}[h]
+    \centering
+    \caption{Sinais do divergente e do rotacional para cada campo vetorial.}
+    \vskip 0.2cm
+    \begin{tabular}{ccc}
+        \hline
+        \textbf{Campo Vetorial} & \textbf{Divergente} & \textbf{Rotacional} \\
+        \hline
+        1 & Positivo & Nulo \\
+        2 & Positivo & Positivo \\
+        3 & Positivo & Nulo \\
+        4 & Nulo & Nulo \\
+        \hline
+    \end{tabular}
+    \label{tab:divrot}
+\end{table}

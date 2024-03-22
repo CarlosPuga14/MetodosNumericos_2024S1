@@ -19,7 +19,7 @@ Sabe-se que $x$ e $y$ s\~ao fun\c{c}\~oes diferenci\'aveis em $\xi$ e $\eta$. Co
     \label{eq:infinitesimal}
 \end{equation}
 
-A matriz contendo as derivadas parciais da transforma\c{c}\~ao de coordenadas \'e chamada de matriz jacobiana ($Jac$). Invertendo o sistema de equa\c{c}\~oes da Eq. \eqref{eq:infinitesimal} tem-se a Eq. \eqref{eq:inverse}, usada para encontrar as derivadas parciais de $\xi$ e $\eta$ em fun\c{c}\~ao de $x$ e $y$.
+A matriz contendo as derivadas parciais da transforma\c{c}\~ao de coordenadas \'e chamada de matriz jacobiana ($Jac$). Invertendo o sistema de equa\c{c}\~oes \eqref{eq:infinitesimal} tem-se a Eq. \eqref{eq:inverse}, usada para encontrar as derivadas parciais de $\xi$ e $\eta$ em fun\c{c}\~ao de $x$ e $y$.
 \begin{equation}
     \begin{bmatrix}
         d\xi\\
@@ -33,7 +33,7 @@ A matriz contendo as derivadas parciais da transforma\c{c}\~ao de coordenadas \'
     \end{bmatrix},
     \label{eq:inverse}
 \end{equation}
-sendo q o inverso da Jacobiana pode ser obtido conforme Eq. \eqref{eq:inverse_jac}.
+sendo que o inverso da Jacobiana pode ser obtido conforme Eq. \eqref{eq:inverse_jac}.
 \begin{equation}
     Jac^{-1} = \frac{1}{|Jac|}
     \begin{bmatrix}
@@ -48,7 +48,25 @@ com $|Jac|$ sendo o determinante da matriz jacobiana dado pela Eq. \eqref{eq:det
     \label{eq:determinant}
 \end{equation}
 
-Plugando as eqs. \eqref{eq:inverse_jac} e \eqref{eq:determinant} na Eq. \eqref{eq:inverse} tem-se a Eq. \eqref{eq:finalMap}
+Analagamente \`a Eq. \eqref{eq:infinitesimal}, pode-se escrever $d\xi$ e $d\eta$ como
+\begin{equation}
+    \begin{bmatrix}
+        d\xi \\
+        d\eta
+    \end{bmatrix}
+    =
+    \begin{bmatrix}
+        \frac{\partial \xi}{\partial x} & \frac{\partial \xi}{\partial y} \\
+        \frac{\partial \eta}{\partial x} & \frac{\partial \eta}{\partial y}
+    \end{bmatrix}
+    \begin{bmatrix}
+        dx\\
+        dy
+    \end{bmatrix}.
+    \label{eq:infinitesimalInverse}
+\end{equation}
+
+Comparando as eqs. \eqref{eq:infinitesimal}, \eqref{eq:inverse} e \eqref{eq:inverse_jac} obt\'em-se as defini\c{c}\~oes das derivadas parciais, mostradas na Eq. \eqref{eq:finalMap}
 \begin{equation}
     \label{eq:finalMap}
     \begin{cases}
@@ -56,7 +74,7 @@ Plugando as eqs. \eqref{eq:inverse_jac} e \eqref{eq:determinant} na Eq. \eqref{e
         \frac{d\eta}{dx} = -\frac{1}{|Jac|}\frac{\partial y}{\partial \xi}\\
         \frac{d\xi}{dy} = -\frac{1}{|Jac|}\frac{\partial x}{\partial \eta}\\
         \frac{d\eta}{dy} =  \frac{1}{|Jac|}\frac{\partial x}{\partial \xi}
-    \end{cases}
+    \end{cases}.
 \end{equation}
 
 Finalmente, pode-se aplicar a regra da cadeia para encontrar o gradiente de $f$ com rela\c{c}\~ao a $\xi$ e $\eta$ em fun\c{c}\~ao de $x$ e $y$ conforme Eq. \eqref{eq:chainRule}.
@@ -73,7 +91,7 @@ Finalmente, pode-se aplicar a regra da cadeia para encontrar o gradiente de $f$ 
     \end{bmatrix}
 \end{equation}
 
-A partir da Eq. \eqref{eq:chainRule} pode-se calcular o gradiente de $\hat f$ em fun\c{c}\~ao de $\xi$ e $\eta$. A seguir, os resultados obtidos pelo c\'odigo em \texttt{Mathematica}. Real\c{c}a-se novamente que o c\'odigo na \'integra pode ser encontrado no Ap\^endice \ref{sec:github}.
+A partir da Eq. \eqref{eq:chainRule} pode-se calcular o gradiente de $\hat f$ em fun\c{c}\~ao de $\xi$ e $\eta$. A seguir, os resultados obtidos pelo c\'odigo em \texttt{Mathematica}. Real\c{c}a-se que o c\'odigo na \'integra pode ser encontrado no Ap\^endice \ref{sec:github}.
 
 Primeiramente, apresentam-se as derivadas parciais de $\hat f$ com rela\c{c}\~ao a $\xi$ e $\eta$
 \begin{equation*}
@@ -99,9 +117,12 @@ e o determinante da matriz jacobiana
 
 Com os resultados das derivadas parciais, calcula-se o grdiente de $\hat f$. 
 \begin{equation*}
-    \frac{d\hat f}{dx} = \frac{2 (\eta -1) (\eta  (\xi -1)-2) (\eta +2 \xi )}{\eta ^2 \left(3 \xi ^2-4 \xi +1\right)-4 \eta 
-    \left(\xi ^2+3 \xi -2\right)+\xi ^2+8 \xi +15}+\frac{1}{16} (\xi -1) \left(\xi ^2-1\right) (2 \eta
-    +\xi )
+    \begin{split}
+        \frac{d\hat f}{dx} =&~ \frac{2 (\eta -1) (\eta  (\xi -1)-2) (\eta +2 \xi )}{\eta ^2 \left(3 \xi ^2-4 \xi +1\right)-4 \eta 
+        \left(\xi ^2+3 \xi -2\right)+\xi ^2+8 \xi +15} +\\
+        &+\frac{1}{16} (\xi -1) \left(\xi ^2-1\right) (2 \eta
+        +\xi )
+    \end{split}
 \end{equation*}
 \begin{equation*}
     \frac{d\hat f}{dy} = \frac{(\xi -1) \left(\eta ^2 (3 \xi -1)-\eta  (5 \xi +7)-2 \xi \right)}{\eta ^2 \left(3 \xi ^2-4 \xi
@@ -111,8 +132,8 @@ Com os resultados das derivadas parciais, calcula-se o grdiente de $\hat f$.
 Por fim, apresenta-se na Fig. \ref{fig:grad4} o gr\'afico do gradiente de $\hat f$ em fun\c{c}\~ao de $x$ e $y$ e seu contorno no domínio.
 \begin{figure}[H]
     \centering
-    \subfloat[\label{fig:plotGradf4}]{\includegraphics[width=0.49\textwidth]{Ex4GradF.pdf}}\hfill
-    \subfloat[\label{fig:contourF4}]{\includegraphics[width=0.49\textwidth]{Ex4ContourF.pdf}}
-    \caption{Resultados: a) gradiente de $f$. b) Contorno de $\hat f$.}
+    \subfloat[\label{fig:plotGradf4} Gradiente de $f$]{\includegraphics[width=0.49\textwidth]{Ex4GradF.pdf}}\hfill
+    \subfloat[\label{fig:contourF4} Contorno de $\hat f$]{\includegraphics[width=0.49\textwidth]{Ex4ContourF.pdf}}
+    \caption{Resultados exerc\'icio 4.}
     \label{fig:grad4}
 \end{figure}
