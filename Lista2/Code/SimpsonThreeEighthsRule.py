@@ -22,11 +22,5 @@ class SimpsonThreeEighthsRule(IntegrationRule):
         """
         self.Xmapped = xi
 
-    def DetJac(self, _, a: float, b: float) -> float:
+    def DetJac(self, a: float, b: float) -> float:
         self.detjac = (b - a)
-
-    def ComputeRequiredData(self, point: float, weight: float, a: float, b: float) -> None:
-        self.Xmap(point)
-        self.DetJac(point, a, b)
-
-        self.detjac *= weight

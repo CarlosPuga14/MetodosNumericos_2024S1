@@ -22,13 +22,11 @@ class SimpsonOneThirdRule(IntegrationRule):
         """
         self.Xmapped = xi
 
-    def DetJac(self, _, a: float, b: float) -> float:
+    def DetJac(self, a: float, b: float) -> float:
+        """
+        Method to compute the determinant of the Jacobian
+        """
         self.detjac = (b - a) / 2
 
-    def ComputeRequiredData(self, point: float, weight: float, a: float, b: float) -> None:
-        self.Xmap(point)
-        self.DetJac(point, a, b)
-
-        self.detjac *= weight
 
     
