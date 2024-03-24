@@ -29,3 +29,9 @@
 *.ist
 *.lof
 *.lot
+
+*.pyc
+*.py[cod]
+__pycache__/
+
+
