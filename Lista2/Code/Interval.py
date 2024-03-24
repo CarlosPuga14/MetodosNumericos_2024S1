@@ -8,6 +8,7 @@ Created by Carlos Puga - 03/23/2024
 from dataclasses import dataclass, field
 from IntegrationRule import IntegrationRule
 from SimpsonOneThirdRule import SimpsonOneThirdRule
+from SimpsonThreeEighthsRule import SimpsonThreeEighthsRule
 
 @dataclass
 class Interval:
@@ -97,7 +98,7 @@ class Interval:
     # ------------------------------
     def __post_init__(self):
         """
-        The __post_init__ method initializes the Interval class.
+        The __post_init__ method initializes sub intervals
         """
         if self._n_refinements > 0:
             span: float = (self.b - self.a)
@@ -147,6 +148,7 @@ class Interval:
         elif self.refinement_level == 0 and ref_level > self.n_refinements:
             raise Exception("Warning: Refinement level must be less than the number of refinements.")
         
+        self.numerical_integral = 0.0
         if self.refinement_level == ref_level:
             self.numerical_integral = self.method.Integrate(func, self.a, self.b, self.pOrder)
 
@@ -157,7 +159,7 @@ class Interval:
 
         return self.numerical_integral
 
-    def ExactIntegrate(self, exact_func: callable)->None:
+    def SetExactSolution(self, exact_func: callable)->None:
         """
         The exact_integrate method calculates the exact integral of the function.
         
@@ -171,16 +173,7 @@ class Interval:
 
         interval: Interval
         for interval in self.sub_intervals:
-            interval.ExactIntegrate(exact_func)
-
-    def ComputeError(self)->float:
-        """
-        The compute_error method calculates the integration error.
-
-        Returns:
-        float - The integration error.
-        """
-        raise NotImplementedError("Warning: This method has not been implemented yet.")
+            interval.SetExactSolution(exact_func)
 
     def SetSimpsonOneThirdIntegration(self):
         """
@@ -191,3 +184,22 @@ class Interval:
         interval: Interval
         for interval in self.sub_intervals:
             interval.SetSimpsonOneThirdIntegration()
+
+    def SetSimpsonThreeEighthsIntegration(self):
+        """
+        The SetSimpsonThreeEighthsIntegration method sets the Simpson's 3/8 integration method.
+        """
+        self.method = SimpsonThreeEighthsRule()
+
+        interval: Interval
+        for interval in self.sub_intervals:
+            interval.SetSimpsonThreeEighthsIntegration()
+    
+    def ComputeError(self)->float:
+        """
+        The compute_error method calculates the integration error.
+
+        Returns:
+        float - The integration error.
+        """
+        pass

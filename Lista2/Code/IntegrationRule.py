@@ -73,14 +73,12 @@ class IntegrationRule(metaclass=ABCMeta):
         """
         raise NotImplementedError("Warning: You should not be here! Implement the method in the derived class")
     
+    @abstractmethod
     def ComputeRequiredData(self, point: float, weight: float, a: float, b: float)->None:
         """
         Method to compute the required data for the integration
         """
-        self.Xmap(point)
-        self.DetJac(point, a, b)
-
-        self.detjac *= weight
+        raise NotImplementedError("Warning: You should not be here! Implement the method in the derived class")
             
     def Integrate(self, func: callable, a: float, b: float, pOrder: int)->float:
         """
