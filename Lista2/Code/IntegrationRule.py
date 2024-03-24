@@ -5,9 +5,118 @@ Integration Methods are supposed to inherit from this class and implement the in
 
 Created by Carlos Puga - 03/23/2024
 """
-from abc import ABC, abstractmethod
-from dataclasses import dataclass
+from abc import ABCMeta, abstractmethod
+from dataclasses import dataclass, field
 
 @dataclass
-class Integration(metaclass=ABC):
-    pass
+class IntegrationRule(metaclass=ABCMeta):
+    """Base class for numerical integration"""
+    _phi: list[float] = field(init=False, default_factory=list)
+    _dphi: list[float] = field(init=False, default_factory=list)
+    _weights: list[float] = field(init=False, default_factory=list)
+    _points: list[float] = field(init=False, default_factory=list)
+    _detjac: float = field(init=False, default=0.0)
+    _Xmapped: float = field(init=False, default=0.0)
+    
+    # ------------------- 
+    #    PROPERTIES 
+    # -------------------
+    @property
+    def phi(self)->list[float]: return self._phi
+    @phi.setter
+    def phi(self, value: list[float])->None: self._phi = value
+
+    @property
+    def dphi(self)->list[float]: return self._dphi
+    @dphi.setter
+    def dphi(self, value: list[float])->None: self._dphi = value
+
+    @property
+    def weights(self)->list[float]: return self._weights
+    @weights.setter
+    def weights(self, value: list[float])->None: self._weights = value
+
+    @property
+    def points(self)->list[float]: return self._points
+    @points.setter
+    def points(self, value: list[float])->None: self._points = value
+
+    @property
+    def detjac(self)->float: return self._detjac
+    @detjac.setter
+    def detjac(self, value: float)->None: self._detjac = value
+
+    @property
+    def Xmapped(self)->float: return self._Xmapped
+    @Xmapped.setter
+    def Xmapped(self, value: float)->None: self._Xmapped = value
+
+    # -------------------
+    #      METHODS
+    # -------------------
+    @abstractmethod
+    def IntegrationPoints(self)->None:
+        """
+        Method to compute the integration points
+        """
+        raise NotImplementedError("Warning: You should not be here! Implement the method in the derived class")
+    
+    @abstractmethod
+    def Xmap(self, xi: float)->None:
+        """
+        Method to compute the map from the reference element to the real element
+
+        Parameters
+        ----------
+        xi : float
+            The reference element coordinate
+        """
+        raise NotImplementedError("Warning: You should not be here! Implement the method in the derived class")
+    
+    @abstractmethod
+    def DetJac(self, xi: float)->float:
+        """
+        Method to compute the determinant of the Jacobian
+
+        Parameters
+        ----------
+        xi : float
+            The reference element coordinate
+
+        Returns
+        -------
+        float
+            The determinant of the Jacobian
+        """
+        raise NotImplementedError("Warning: You should not be here! Implement the method in the derived class")
+    
+    def ComputeRequiredData(self, point: float, weight: float)->None:
+        """
+        Method to compute the required data for the integration
+        """
+        self.Xmap(point)
+        self.DetJac(point)
+
+        self.detjac *= weight
+            
+    def Integrate(self, func: callable, a: float, b: float, pOrder: int)->float:
+        """
+        Method to compute the integral of the function
+
+        Returns
+        -------
+        float
+            The integral of the function in the interval
+        """
+        self.IntegrationPoints(a, b, pOrder)
+
+        function_integrate: float = 0.0
+        for point, weight in zip(self.points, self.weights):
+            self.ComputeRequiredData(point, weight)
+
+            function_integrate += self.detjac * func(self.Xmapped)
+
+        return function_integrate
+
+            
+            
