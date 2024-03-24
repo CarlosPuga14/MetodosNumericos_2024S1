@@ -1,13 +1,11 @@
 from IntegrationRule import IntegrationRule
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 @dataclass
 class SimpsonOneThirdRule(IntegrationRule):
     """
     Class to compute the integration points and weights for the Simpson's 1/3 rule
     """
-    _npoints: int = field(init=False, default=3)
-    
     # -------------------
     #      METHODS
     # -------------------
@@ -24,7 +22,13 @@ class SimpsonOneThirdRule(IntegrationRule):
         """
         self.Xmapped = xi
 
-    def DetJac(self, _: float, a: float, b: float) -> float:
+    def DetJac(self, _, a: float, b: float) -> float:
         self.detjac = (b - a) / 2
+
+    def ComputeRequiredData(self, point: float, weight: float, a: float, b: float) -> None:
+        self.Xmap(point)
+        self.DetJac(point, a, b)
+
+        self.detjac *= weight
 
     
