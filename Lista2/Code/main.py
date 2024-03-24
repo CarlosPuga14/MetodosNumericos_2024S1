@@ -11,14 +11,18 @@ import numpy as np
 def main():
     interval = Interval(0.0, 1, 2)
 
-    func = lambda x: x
+    func = lambda x: np.sin(x)
 
-    exact = lambda x: x**2/2
-    interval.SetExactSolution(exact)
+    ref_level = 1
+
+    exact = lambda x: -np.cos(x)
+    interval.SetExactSolution(exact, ref_level)
     
     interval.SetTrapezoidalRule()
-    interval.NumericalIntegrate(func, 2)
+    interval.NumericalIntegrate(func, ref_level)
     
+    interval.ComputeError()
+
     interval.Print()
 
 if __name__ == "__main__":

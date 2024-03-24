@@ -160,7 +160,7 @@ class Interval:
 
         return self.numerical_integral
 
-    def SetExactSolution(self, exact_func: callable)->None:
+    def SetExactSolution(self, exact_func: callable, ref_level)->None:
         """
         The exact_integrate method calculates the exact integral of the function.
         
@@ -174,7 +174,8 @@ class Interval:
 
         interval: Interval
         for interval in self.sub_intervals:
-            interval.SetExactSolution(exact_func)
+            if self.refinement_level < ref_level:
+                interval.SetExactSolution(exact_func, ref_level)
 
     def SetSimpsonOneThirdIntegration(self)->None:
         """
@@ -213,4 +214,10 @@ class Interval:
         Returns:
         float - The integration error.
         """
-        pass
+        self.integration_error = abs(self.analytic_integral - self.numerical_integral)
+        
+        interval: Interval
+        for interval in self.sub_intervals:
+            interval.ComputeError()
+
+        return self.integration_error
