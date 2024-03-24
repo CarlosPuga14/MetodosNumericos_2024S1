@@ -62,7 +62,7 @@ class IntegrationRule(metaclass=ABCMeta):
         raise NotImplementedError("Warning: You should not be here! Implement the method in the derived class")
     
     @abstractmethod
-    def DetJac(self, xi: float)->None:
+    def DetJac(self, a: float, b:float)->None:
         """
         Method to compute the determinant of the Jacobian
 
@@ -73,14 +73,15 @@ class IntegrationRule(metaclass=ABCMeta):
         """
         raise NotImplementedError("Warning: You should not be here! Implement the method in the derived class")
     
-    @abstractmethod
-    def ComputeRequiredData(self, point: float, weight: float, a: float, b: float)->None:
+    def ComputeRequiredData(self, point: float, a: float, b: float)->None:
         """
         Method to compute the required data for the integration
         """
-        raise NotImplementedError("Warning: You should not be here! Implement the method in the derived class")
+        self.Xmap(point, a, b)
+        self.DetJac(a, b)
+       
             
-    def Integrate(self, func: callable, a: float, b: float, pOrder: int)->float:
+    def Integrate(self, func: callable, a: float, b: float, npoints: int)->float:
         """
         Method to compute the integral of the function
 
@@ -89,12 +90,12 @@ class IntegrationRule(metaclass=ABCMeta):
         float
             The integral of the function in the interval
         """
-        self.IntegrationPoints(a, b, pOrder)
+        self.IntegrationPoints(a, b, npoints)
 
         function_integrate: float = 0.0
         for point, weight in zip(self.points, self.weights):
-            self.ComputeRequiredData(point, weight, a, b)
+            self.ComputeRequiredData(point, a, b)
 
-            function_integrate += self.detjac * func(self.Xmapped)
+            function_integrate += self.detjac * func(self.Xmapped) * weight
 
         return function_integrate
