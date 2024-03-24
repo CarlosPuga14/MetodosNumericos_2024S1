@@ -3,13 +3,14 @@ The Interval class operates the main data structure for the numerical integratio
 In this class, parameters such as the integration domain, number of intervals, the function to be integrated,
 the analytic solution, and the numerical method are stored.
 
-Created by Carlos Puga - 03/23/2024
+Created by Carlos Puga - 03/23/2024 inspired by the code developed by Giovane Avancini
 """
 from dataclasses import dataclass, field
 from IntegrationRule import IntegrationRule
 from SimpsonOneThirdRule import SimpsonOneThirdRule
 from SimpsonThreeEighthsRule import SimpsonThreeEighthsRule
 from TrapezoidalRule import TrapezoidalRule
+from GaussLegendreRule import GaussLegendreRule
 
 @dataclass
 class Interval:
@@ -33,7 +34,7 @@ class Interval:
     _b: float
     _n_refinements: int
     _refinement_level: int = field(default=0)
-    _pOrder: int = field(default=0)
+    _n_points: int = field(default=0)
     _method: IntegrationRule = field(init=False, default=None)
     _sub_intervals: list = field(init=False, default_factory=list)
     _numerical_integral: float = field(init=False, default=0.0)
@@ -65,9 +66,9 @@ class Interval:
     def refinement_level(self, refinement_level: int): self._refinement_level = refinement_level
 
     @property
-    def pOrder(self) -> int: return self._pOrder
-    @pOrder.setter
-    def pOrder(self, pOrder: int): self._pOrder = pOrder
+    def n_points(self) -> int: return self._n_points
+    @n_points.setter
+    def n_points(self, points: int): self._n_points = points
 
     @property
     def method(self) -> IntegrationRule: return self._method
@@ -104,32 +105,11 @@ class Interval:
         if self._n_refinements > 0:
             span: float = (self.b - self.a)
 
-            left_subinterval: Interval = Interval(self.a, self.a + span/2, self.n_refinements - 1, self.refinement_level + 1)
+            left_subinterval: Interval = Interval(self.a, self.a + span/2, self.n_refinements - 1, self.refinement_level + 1, self.n_points)
             self.sub_intervals.append(left_subinterval)
 
-            right_subinterval: Interval = Interval(self.a + span/2, self.b, self.n_refinements-1, self.refinement_level + 1)
+            right_subinterval: Interval = Interval(self.a + span/2, self.b, self.n_refinements-1, self.refinement_level + 1, self.n_points)
             self.sub_intervals.append(right_subinterval)
-    
-    def Print(self):
-        """
-        The Print method prints the Interval data.
-        """
-        print(f"Interval: [{self.a}, {self.b}]")
-        print(f"Refinement Level: {self.refinement_level}")
-        print(f"Numerical Integral: {self.numerical_integral}")
-        print(f"Analytic Integral: {self.analytic_integral}")
-        print(f"Integration Error: {self.integration_error}")
-        print(f"Number of Sub-Intervals: {len(self.sub_intervals)}")
-        print(f"Integration Method: {self.method.__class__.__name__}")
-
-        if len(self.sub_intervals) > 0:
-            print("Sub-Intervals:")
-            
-            sub_interval: Interval
-            for sub_interval in self.sub_intervals:
-                sub_interval.Print()
-
-        print()
 
     def NumericalIntegrate(self, func: callable, ref_level: int = 0)->float:
         """
@@ -151,7 +131,7 @@ class Interval:
         
         self.numerical_integral = 0.0
         if self.refinement_level == ref_level:
-            self.numerical_integral = self.method.Integrate(func, self.a, self.b, self.pOrder)
+            self.numerical_integral = self.method.Integrate(func, self.a, self.b, self.n_points)
 
         else:
             interval: Interval
@@ -177,36 +157,6 @@ class Interval:
             if self.refinement_level < ref_level:
                 interval.SetExactSolution(exact_func, ref_level)
 
-    def SetSimpsonOneThirdIntegration(self)->None:
-        """
-        The SetSimpsonOneThirdIntegration method sets the Simpson's 1/3 integration method.
-        """
-        self.method = SimpsonOneThirdRule()
-
-        interval: Interval
-        for interval in self.sub_intervals:
-            interval.SetSimpsonOneThirdIntegration()
-
-    def SetSimpsonThreeEighthsIntegration(self)->None:
-        """
-        The SetSimpsonThreeEighthsIntegration method sets the Simpson's 3/8 integration method.
-        """
-        self.method = SimpsonThreeEighthsRule()
-
-        interval: Interval
-        for interval in self.sub_intervals:
-            interval.SetSimpsonThreeEighthsIntegration()
-
-    def SetTrapezoidalRule(self)->None:
-        """
-        The SetTrapezoidalRule method sets the Trapezoidal rule.
-        """
-        self.method = TrapezoidalRule()
-
-        interval: Interval
-        for interval in self.sub_intervals:
-            interval.SetTrapezoidalRule()
-    
     def ComputeError(self)->float:
         """
         The compute_error method calculates the integration error.
@@ -221,3 +171,74 @@ class Interval:
             interval.ComputeError()
 
         return self.integration_error
+
+    def SetSimpsonOneThirdRule(self)->None:
+        """
+        The SetSimpsonOneThirdIntegration method sets the Simpson's 1/3 integration method.
+        """
+        self.method = SimpsonOneThirdRule()
+
+        interval: Interval
+        for interval in self.sub_intervals:
+            interval.SetSimpsonOneThirdRule()
+
+    def SetSimpsonThreeEighthsRule(self)->None:
+        """
+        The SetSimpsonThreeEighthsIntegration method sets the Simpson's 3/8 integration method.
+        """
+        self.method = SimpsonThreeEighthsRule()
+
+        interval: Interval
+        for interval in self.sub_intervals:
+            interval.SetSimpsonThreeEighthsRule()
+
+    def SetTrapezoidalRule(self)->None:
+        """
+        The SetTrapezoidalRule method sets the Trapezoidal rule.
+        """
+        self.method = TrapezoidalRule()
+
+        interval: Interval
+        for interval in self.sub_intervals:
+            interval.SetTrapezoidalRule()
+
+    def SetGaussLegendreRule(self)->None:
+        """
+        The SetGaussLegendreRule method sets the Gauss-Legendre rule.
+        """
+        self.method = GaussLegendreRule()
+
+        interval: Interval
+        for interval in self.sub_intervals:
+            interval.SetGaussLegendreRule()
+
+    def WriteResults(self, nprint: callable, print_sub_intervals: bool = True)->None:
+            nprint("")
+            nprint(f"Interval: [{self.a}, {self.b}]")
+            nprint(f"Refinement Level: {self.refinement_level}")
+            nprint(f"Numerical Integral: {self.numerical_integral}")
+            nprint(f"Analytic Integral: {self.analytic_integral}")
+            nprint(f"Integration Error: {self.integration_error}")
+            nprint(f"Number of Sub-Intervals: {len(self.sub_intervals)}")
+            nprint(f"Integration Method: {self.method.__class__.__name__}")
+
+            if self.sub_intervals and print_sub_intervals:
+                nprint("Sub-Intervals:")
+                
+                sub_interval: Interval
+                for sub_interval in self.sub_intervals:
+                    sub_interval.WriteResults(nprint=nprint, print_sub_intervals=print_sub_intervals)
+    
+    def Print(self, file: str = None, print_sub_intervals: bool = True)->None:
+        """
+        The Print method prints the Interval data and integration results.
+        """
+        def CurryPrint(file): return lambda text=" ": print(text, file=file)
+
+        if file:
+            with open(file, "w") as f:
+                nprint = CurryPrint(f)
+                self.WriteResults(nprint=nprint, print_sub_intervals=print_sub_intervals)
+        else:
+            nprint = print
+            self.WriteResults(nprint=nprint, print_sub_intervals=print_sub_intervals)

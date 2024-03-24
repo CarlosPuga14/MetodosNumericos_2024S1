@@ -50,7 +50,7 @@ def main():
     interval.ComputeError()
 
     # printing the results
-    results_file = "Test.txt" if printTxt else None
+    results_file = "Gauss.txt" if printTxt else None
     interval.Print(file = results_file, print_sub_intervals = True)
 
 if __name__ == "__main__":
