@@ -53,5 +53,7 @@ def main():
     results_file = "Gauss.txt" if printTxt else None
     interval.Print(file = results_file, print_sub_intervals = True)
 
+    return 0
+
 if __name__ == "__main__":
     main()

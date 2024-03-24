@@ -140,7 +140,7 @@ class Interval:
 
         return self.numerical_integral
 
-    def SetExactSolution(self, exact_func: callable, ref_level)->None:
+    def SetExactSolution(self, exact_func: callable, ref_level: int)->None:
         """
         The exact_integrate method calculates the exact integral of the function.
         
