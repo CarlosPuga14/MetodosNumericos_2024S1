@@ -1,0 +1,8 @@
+
+Interval: [0.0, 1.0]
+Refinement Level: 0
+Numerical Integral: 0.12499999999999996
+Analytic Integral: 0.125
+Integration Error: 4.163336342344337e-17
+Number of Sub-Intervals: 2
+Integration Method: GaussLegendreRule
