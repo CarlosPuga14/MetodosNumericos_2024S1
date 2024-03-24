@@ -30,6 +30,7 @@ class Interval:
     _b: float
     _n_refinements: int
     _refinement_level: int = field(default=0)
+    _pOrder: int = field(default=0)
     _method: IntegrationRule = field(init=False, default=None)
     _sub_intervals: list = field(init=False, default_factory=list)
     _numerical_integral: float = field(init=False, default=0.0)
@@ -59,6 +60,11 @@ class Interval:
     def refinement_level(self) -> int: return self._refinement_level
     @refinement_level.setter
     def refinement_level(self, refinement_level: int): self._refinement_level = refinement_level
+
+    @property
+    def pOrder(self) -> int: return self._pOrder
+    @pOrder.setter
+    def pOrder(self, pOrder: int): self._pOrder = pOrder
 
     @property
     def method(self) -> IntegrationRule: return self._method
@@ -141,7 +147,7 @@ class Interval:
             raise Exception("Warning: Refinement level must be less than the number of refinements.")
         
         if self.refinement_level == ref_level:
-            self.numerical_integral = self.method.integrate(func, self.a, self.b)
+            self.numerical_integral = self.method.Integrate(func, self.a, self.b, self.pOrder)
 
         else:
             interval: Interval
