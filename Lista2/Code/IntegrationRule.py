@@ -11,8 +11,6 @@ from dataclasses import dataclass, field
 @dataclass
 class IntegrationRule(metaclass=ABCMeta):
     """Base class for numerical integration"""
-    _phi: list[float] = field(init=False, default_factory=list)
-    _dphi: list[float] = field(init=False, default_factory=list)
     _weights: list[float] = field(init=False, default_factory=list)
     _points: list[float] = field(init=False, default_factory=list)
     _detjac: float = field(init=False, default=0.0)
@@ -21,16 +19,6 @@ class IntegrationRule(metaclass=ABCMeta):
     # ------------------- 
     #    PROPERTIES 
     # -------------------
-    @property
-    def phi(self)->list[float]: return self._phi
-    @phi.setter
-    def phi(self, value: list[float])->None: self._phi = value
-
-    @property
-    def dphi(self)->list[float]: return self._dphi
-    @dphi.setter
-    def dphi(self, value: list[float])->None: self._dphi = value
-
     @property
     def weights(self)->list[float]: return self._weights
     @weights.setter
@@ -55,7 +43,7 @@ class IntegrationRule(metaclass=ABCMeta):
     #      METHODS
     # -------------------
     @abstractmethod
-    def IntegrationPoints(self)->None:
+    def IntegrationPoints(self, a: float, b:float, pOrder: int)->None:
         """
         Method to compute the integration points
         """
@@ -74,7 +62,7 @@ class IntegrationRule(metaclass=ABCMeta):
         raise NotImplementedError("Warning: You should not be here! Implement the method in the derived class")
     
     @abstractmethod
-    def DetJac(self, xi: float)->float:
+    def DetJac(self, xi: float)->None:
         """
         Method to compute the determinant of the Jacobian
 
@@ -82,20 +70,15 @@ class IntegrationRule(metaclass=ABCMeta):
         ----------
         xi : float
             The reference element coordinate
-
-        Returns
-        -------
-        float
-            The determinant of the Jacobian
         """
         raise NotImplementedError("Warning: You should not be here! Implement the method in the derived class")
     
-    def ComputeRequiredData(self, point: float, weight: float)->None:
+    def ComputeRequiredData(self, point: float, weight: float, a: float, b: float)->None:
         """
         Method to compute the required data for the integration
         """
         self.Xmap(point)
-        self.DetJac(point)
+        self.DetJac(point, a, b)
 
         self.detjac *= weight
             
@@ -112,11 +95,8 @@ class IntegrationRule(metaclass=ABCMeta):
 
         function_integrate: float = 0.0
         for point, weight in zip(self.points, self.weights):
-            self.ComputeRequiredData(point, weight)
+            self.ComputeRequiredData(point, weight, a, b)
 
             function_integrate += self.detjac * func(self.Xmapped)
 
         return function_integrate
-
-            
-            

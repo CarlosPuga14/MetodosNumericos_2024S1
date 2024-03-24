@@ -7,6 +7,7 @@ Created by Carlos Puga - 03/23/2024
 """
 from dataclasses import dataclass, field
 from IntegrationRule import IntegrationRule
+from SimpsonOneThirdRule import SimpsonOneThirdRule
 
 @dataclass
 class Interval:
@@ -128,7 +129,7 @@ class Interval:
 
         print()
 
-    def numerical_integrate(self, func: callable, ref_level: int)->float:
+    def NumericalIntegrate(self, func: callable, ref_level: int = 0)->float:
         """
         The numerical_integrate method calculates the numerical integral of the function.
         
@@ -152,11 +153,11 @@ class Interval:
         else:
             interval: Interval
             for interval in self.sub_intervals:
-                self.numerical_integral += interval.numerical_integrate(func, ref_level)
+                self.numerical_integral += interval.NumericalIntegrate(func, ref_level)
 
         return self.numerical_integral
 
-    def exact_integrate(self, exact_func: callable)->float:
+    def ExactIntegrate(self, exact_func: callable)->None:
         """
         The exact_integrate method calculates the exact integral of the function.
         
@@ -170,15 +171,23 @@ class Interval:
 
         interval: Interval
         for interval in self.sub_intervals:
-            self.analytic_integral += interval.exact_integrate(exact_func)
+            interval.ExactIntegrate(exact_func)
 
-        return self.analytic_integral
-
-    def compute_error(self)->float:
+    def ComputeError(self)->float:
         """
         The compute_error method calculates the integration error.
 
         Returns:
         float - The integration error.
         """
-        pass
+        raise NotImplementedError("Warning: This method has not been implemented yet.")
+
+    def SetSimpsonOneThirdIntegration(self):
+        """
+        The SetSimpsonOneThirdIntegration method sets the Simpson's 1/3 integration method.
+        """
+        self.method = SimpsonOneThirdRule()
+
+        interval: Interval
+        for interval in self.sub_intervals:
+            interval.SetSimpsonOneThirdIntegration()
