@@ -9,6 +9,7 @@ from dataclasses import dataclass, field
 from IntegrationRule import IntegrationRule
 from SimpsonOneThirdRule import SimpsonOneThirdRule
 from SimpsonThreeEighthsRule import SimpsonThreeEighthsRule
+from TrapezoidalRule import TrapezoidalRule
 
 @dataclass
 class Interval:
@@ -175,7 +176,7 @@ class Interval:
         for interval in self.sub_intervals:
             interval.SetExactSolution(exact_func)
 
-    def SetSimpsonOneThirdIntegration(self):
+    def SetSimpsonOneThirdIntegration(self)->None:
         """
         The SetSimpsonOneThirdIntegration method sets the Simpson's 1/3 integration method.
         """
@@ -185,7 +186,7 @@ class Interval:
         for interval in self.sub_intervals:
             interval.SetSimpsonOneThirdIntegration()
 
-    def SetSimpsonThreeEighthsIntegration(self):
+    def SetSimpsonThreeEighthsIntegration(self)->None:
         """
         The SetSimpsonThreeEighthsIntegration method sets the Simpson's 3/8 integration method.
         """
@@ -194,6 +195,16 @@ class Interval:
         interval: Interval
         for interval in self.sub_intervals:
             interval.SetSimpsonThreeEighthsIntegration()
+
+    def SetTrapezoidalRule(self)->None:
+        """
+        The SetTrapezoidalRule method sets the Trapezoidal rule.
+        """
+        self.method = TrapezoidalRule()
+
+        interval: Interval
+        for interval in self.sub_intervals:
+            interval.SetTrapezoidalRule()
     
     def ComputeError(self)->float:
         """

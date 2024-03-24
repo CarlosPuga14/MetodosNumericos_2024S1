@@ -9,15 +9,15 @@ from Interval import Interval
 import numpy as np
 
 def main():
-    interval = Interval(0.0, 1, 0)
+    interval = Interval(0.0, 1, 2)
 
-    func = lambda x: x + 1
+    func = lambda x: x
 
-    exact = lambda x: x**2/2 + x
+    exact = lambda x: x**2/2
     interval.SetExactSolution(exact)
     
-    interval.SetSimpsonThreeEighthsIntegration()
-    interval.NumericalIntegrate(func)
+    interval.SetTrapezoidalRule()
+    interval.NumericalIntegrate(func, 2)
     
     interval.Print()
 
