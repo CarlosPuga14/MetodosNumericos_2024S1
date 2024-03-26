@@ -1,0 +1,39 @@
+# LaTeX temporary files
+*.aux
+*.log
+*.toc
+
+# LaTeX Beamer
+*.snm
+*.vrb
+*.nav
+*.out
+
+# BibTeX
+*.bbl
+*.blg
+
+# Latexmk
+*.fdb_latexmk
+
+# SyncTeX
+*.synctex.gz
+
+*.acn
+*.acr
+*.alg
+*.fls
+*.glg
+*.glo
+*.gls
+*.ist
+*.lof
+*.lot
+
+*.pyc
+*.py[cod]
+__pycache__/
+
+*.txt
+
+
