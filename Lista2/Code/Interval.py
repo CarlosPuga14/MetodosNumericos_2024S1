@@ -6,6 +6,8 @@ the analytic solution, and the numerical method are stored.
 Created by Carlos Puga - 03/23/2024 inspired by the code developed by Giovane Avancini
 """
 from dataclasses import dataclass, field
+from typing import ClassVar
+
 from IntegrationRule import IntegrationRule
 from SimpsonOneThirdRule import SimpsonOneThirdRule
 from SimpsonThreeEighthsRule import SimpsonThreeEighthsRule
@@ -30,6 +32,8 @@ class Interval:
     # ------------------------------
     #         ATTRIBUTES
     # ------------------------------
+    total_error: ClassVar[float] = 0.0
+
     _a: float
     _b: float
     _n_refinements: int
@@ -44,7 +48,6 @@ class Interval:
     # ------------------------------
     #         GETTERS & SETTERS
     # ------------------------------
-
     @property
     def a(self) -> float: return self._a
     @a.setter
@@ -157,20 +160,20 @@ class Interval:
             if self.refinement_level < ref_level:
                 interval.SetExactSolution(exact_func, ref_level)
 
-    def ComputeError(self)->float:
+    def ComputeError(self, ref_level: int)->None:
         """
         The compute_error method calculates the integration error.
 
         Returns:
         float - The integration error.
         """
-        self.integration_error = abs(self.analytic_integral - self.numerical_integral)
-        
+        if self.refinement_level == ref_level:
+            self.integration_error = abs(self.analytic_integral - self.numerical_integral)
+            Interval.total_error += self.integration_error
+
         interval: Interval
         for interval in self.sub_intervals:
-            interval.ComputeError()
-
-        return self.integration_error
+            interval.ComputeError(ref_level)
 
     def SetSimpsonOneThirdRule(self)->None:
         """
@@ -239,6 +242,12 @@ class Interval:
             with open(file, "w") as f:
                 nprint = CurryPrint(f)
                 self.WriteResults(nprint=nprint, print_sub_intervals=print_sub_intervals)
+                nprint()
+                nprint(f"{'-'* 30}")
+                nprint(f"Total Error: {Interval.total_error}")
         else:
             nprint = print
             self.WriteResults(nprint=nprint, print_sub_intervals=print_sub_intervals)
+            nprint()
+            nprint(f"{'-'* 30}")
+            nprint(f"Total Error: {Interval.total_error}")
