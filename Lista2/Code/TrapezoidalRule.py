@@ -16,7 +16,7 @@ class TrapezoidalRule(IntegrationRule):
         self.points = [a, b]
         self.weights = [1/2, 1/2]
 
-    def Xmap(self, xi: float) -> None:
+    def Xmap(self, xi: float, _, __) -> None:
         """
         Method to map the integration points to the physical domain
         """

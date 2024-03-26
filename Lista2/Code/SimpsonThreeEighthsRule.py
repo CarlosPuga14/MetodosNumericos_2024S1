@@ -16,7 +16,7 @@ class SimpsonThreeEighthsRule(IntegrationRule):
         self.points = [a, (2* a + b) / 3, (a + 2 * b) / 3, b]
         self.weights = [1/8, 3/8, 3/8, 1/8]
 
-    def Xmap(self, xi: float) -> None:
+    def Xmap(self, xi: float, _, __) -> None:
         """
         Method to map the integration points to the physical domain
         """

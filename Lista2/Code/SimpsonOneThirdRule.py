@@ -16,7 +16,7 @@ class SimpsonOneThirdRule(IntegrationRule):
         self.points = [a, (a+b)/2, b]
         self.weights = [1/3, 4/3, 1/3]
 
-    def Xmap(self, xi: float) -> None:
+    def Xmap(self, xi: float, _, __)->None:
         """
         Method to map the integration points to the physical domain
         """
