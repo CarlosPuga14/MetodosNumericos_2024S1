@@ -1,0 +1,103 @@
+function 1: e = 10e-3
+	Analytic solution: 0.05604991216397927
+
+* Trapezoidal Rule
+	- ref_level 0: 
+		-> Numerical Integral: 0.0
+		-> |Error|: 0.05604991216397927
+
+	- ref_level 1:
+		-> Numerical Integral: 1.0
+		-> |Error|: 0.9439500878360207
+
+	- ref_level 2:
+		-> Numerical Integral: 0.5
+		-> |Error|: 0.44395008783602075
+
+	- ref_level 3:
+		-> Numerical Integral:  0.25
+		-> |Error|: 0.19395008783602075
+
+	- ref_level 4:
+		-> Numerical Integral: 0.1250000409344283
+		-> |Error|: 0.06895012877044901
+
+	- ref_level 5:
+		-> Numerical Integral: 0.0650144947205568
+		-> |Error|: 0.008964582556577545
+
+* Simpson 1/3 Rule
+	- ref_level 0: 
+		-> Numerical Integral: 1.3333333333333333
+		-> |Error|: 1.277283421169354
+
+	- ref_level 1:
+		-> Numerical Integral: 0.3333333333333333
+		-> |Error|: 0.27728342116935406
+
+	- ref_level 2:
+		-> Numerical Integral: 0.16666666666666666
+		-> |Error|: 0.11061675450268739
+
+	- ref_level 3:
+		-> Numerical Integral: 0.08333338791257101
+		-> |Error|: 0.027283475748591746
+
+	- ref_level 4:
+		-> Numerical Integral: 0.04501931264926633
+		-> |Error|: 0.011030610616566211
+
+	- ref_level 5:
+		-> Numerical Integral: 0.053067818365428454
+		-> |Error|: 0.0032640219980255136
+
+
+* Simpson 3/8 Rule
+	- ref_level 0: 
+		-> Numerical Integral: 8.339669219930872e-49
+		-> |Error|: 0.05604991216397927
+
+	- ref_level 1:
+		-> Numerical Integral: 0.25
+		-> |Error|: 0.19395008783602075
+
+	- ref_level 2:
+		-> Numerical Integral: 0.12500000000032382
+		-> |Error|: 0.06895008783634456
+
+	- ref_level 3:
+		-> Numerical Integral: 0.06268074544873706
+		-> |Error|: 0.006630833284757796
+
+	- ref_level 4:
+		-> Numerical Integral: 0.04785953691852189
+		-> |Error|: 0.008190382936270012
+
+	- ref_level 5:
+		-> Numerical Integral: 0.054929339361198565
+		-> |Error|: 0.001259750302487481
+
+* Gaussian Quadrature
+	- ref_level 0: 
+		-> Numerical Integral: 0.5688888888888889
+		-> |Error|: 0.5128389767249096
+
+	- ref_level 1:
+		-> Numerical Integral: 0.026237672630095674
+		-> |Error|: 0.029812239533883594
+
+	- ref_level 2:
+		-> Numerical Integral: 0.06833836805500268
+		-> |Error|: 0.012288455891023412
+
+	- ref_level 3:
+		-> Numerical Integral: 0.055910941711928466
+		-> |Error|: 0.00013897045205079825
+
+	- ref_level 4:
+		-> Numerical Integral: 0.056085316747042216
+		-> |Error|: 3.540495640612479e-05
+
+	- ref_level 5:
+		-> Numerical Integral: 0.05604971242661354
+		-> |Error|: 2.3160292541331857e-07
