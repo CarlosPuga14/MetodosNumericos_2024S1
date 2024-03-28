@@ -9,10 +9,9 @@ from Interval import Interval
 from scipy import special
 import numpy as np
 
-epot:int = 4
-method: int = 3
-ref_level = 5
-
+#-------------------
+#CONSTANTS & FUNCTIONS
+#-------------------
 PI: float = np.pi
 COS: callable = np.cos
 SIN: callable = np.sin
@@ -20,6 +19,18 @@ SQRT: callable = np.sqrt
 
 ERF: callable = special.erf
 SICI: callable = special.sici
+
+#-------------------
+#    PARAMETERS
+#-------------------
+epot: int = 4
+method: int = 3
+npoints: int = 3
+ref_level: int = 5
+n_divisions: int = 5
+
+a: float = 0.
+b: float = 8/PI
 
 #-------------------
 #    FUNCTION 1
@@ -81,14 +92,7 @@ def IntFunction3(x:float)->float:
 #-------------------
 #    MAIN FUNCTION
 #-------------------
-def main():
-    # defining the integration interval
-    npoints = 4
-    a = 0
-    b = 8 / PI
-
-    n_divisions = 5
-
+def main()->int:
     # defining the refinement level (how many intervals are going to be used to integrate the function)
     interval = Interval(_a = a, _b = b, _n_refinements = n_divisions, _n_points = npoints)
 
