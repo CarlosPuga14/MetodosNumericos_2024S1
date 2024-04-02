@@ -24,9 +24,9 @@ SICI: callable = special.sici
 #    PARAMETERS
 #-------------------
 epot: int = 4
-method: int = 3
+method: int = 1
 npoints: int = 3
-ref_level: int = 5
+ref_level: int = 2
 n_divisions: int = 5
 
 a: float = 0.
@@ -88,6 +88,9 @@ def IntFunction3(x:float)->float:
     
     elif x <= 8 / PI:
         return IntFunction3(2/PI) - intf33(2/PI) + intf33(x)
+    
+    else: 
+        raise ValueError("Invalid x value")
 
 #-------------------
 #    MAIN FUNCTION
