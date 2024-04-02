@@ -1,6 +1,273 @@
 \section{Results} \label{sec:results}
-This section presents the main results achieved by the proposed methods. The results are divided into two parts: the first one presents the values obtained by the numerical integration using the methods implemented in this work, using 4 refinement levels. The second part compares the numerical and the analytical results, discussing whether or not the error convergence is as expected. 
+This section presents the main results achieved by the proposed methods. The results are divided into two parts: the first one presents the values obtained by the numerical integration using the methods implemented in this work, using 5 refinement levels and the rate of convergence. The second part compares the numerical and the analytical results, discussing whether or not the error convergence is as expected. 
+
+
 
 \subsection{Numerical Integration Results}
+\begin{table}[H]
+    \centering
+    \caption{Trapezoidal Rule.}
+    \begin{tabular}{ccccc}
+    \hline
+    \multicolumn{5}{c}{\textbf{Function 1}} \\
+    \hline
+    \multicolumn{3}{c}{\textbf{Numerical Integration}} & \multicolumn{2}{l}{\textbf{Rate of Convergence}} \\\hline
+    \# Subintervals & Approx. Solution & $|| sol - sol_h ||$ & Subintervals & Rate \\\hline
+    1 & 0.0 & 0.01772 & 1 - 2 & 5.79 \\
+    2 & 1.0 & 0.98227 & 2 - 4 & -1.03 \\
+    4 & 0.5 & 0.48227 & 4 - 8 & -1.05 \\
+    8 & 0.25 & 0.23227 & 8 - 16 & -1.11 \\
+    16 & 0.125 & 0.10727 & 16 - 32 & -1.26 \\
+    32 & 0.0625 & 0.04477 & \textbf{Average Rate} & 0.27\\ \hline
+    \multicolumn{5}{c}{\textbf{Function 2}} \\
+    \hline
+    \multicolumn{3}{c}{\textbf{Numerical Integration}} & \multicolumn{2}{l}{\textbf{Rate of Convergence}} \\\hline
+    \# Subintervals & Approx. Solution & $|| sol - sol_h ||$ & Subintervals & Rate \\\hline
+    1 & -0.00267 & 0.00177 & 1 - 2 & 0.15 \\
+    2 & -0.00287 & 0.00197 & 2 - 4 & 0.31 \\
+    4 & -0.00129 & 0.00243 & 4 - 8 & -0.49 \\
+    8 & -0.00154 & 0.00173 & 8 - 16 & -1.42 \\
+    16 & -0.00087 & 0.00064 & 16 - 32 & -0.72 \\
+    32 & -0.00092 & 0.00039 & \textbf{Average Rate} & -0.43\\ \hline
+    \multicolumn{5}{c}{\textbf{Function 3}} \\
+    \hline
+    \multicolumn{3}{c}{\textbf{Numerical Integration}} & \multicolumn{2}{l}{\textbf{Rate of Convergence}} \\\hline
+    \# Subintervals & Approx. Solution & $|| sol - sol_h ||$ & Subintervals & Rate \\\hline
+    1 & 9.42822 & 2.21083 & 1 - 2 & -0.53 \\
+    2 & 11.56799 & 1.5334 & 2 - 4 &  -2.16\\
+    4 & 11.62885 & 0.34341 & 4 - 8 &  -1.84\\
+    8 & 11.63645 & 0.09581 & 8 - 16 &  -2.01\\
+    16 & 11.63840 & 0.02383 & 16 - 32 &  -2.00\\
+    32 & 11.63889 & 0.00595 & \textbf{Average Rate} & -1.71\\ \hline
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \caption{Simpson 1/3 Rule.}
+    \begin{tabular}{ccccc}
+    \hline
+    \multicolumn{5}{c}{\textbf{Function 1}} \\
+    \hline
+    \multicolumn{3}{c}{\textbf{Numerical Integration}} & \multicolumn{2}{l}{\textbf{Rate of Convergence}} \\\hline
+    \# Subintervals & Approx. Solution & $|| sol - sol_h ||$ & Subintervals & Rate \\\hline
+    1 & 1.33333 & 1.31560 & 1 - 2 &  -2.06\\
+    2 & 0.33333 & 0.31560 & 2 - 4 &  -1.08\\
+    4 & 0.16666 & 0.14894 & 4 - 8 &  -1.18\\
+    8 & 0.08333 & 0.06560 & 8 - 16 &  -1.45\\
+    16 & 0.04166 & 0.02394 & 16 - 32 &  -2.94\\
+    32 & 0.02083 & 0.00311 & \textbf{Average Rate} & -1.74\\ \hline
+    \multicolumn{5}{c}{\textbf{Function 2}} \\
+    \hline
+    \multicolumn{3}{c}{\textbf{Numerical Integration}} & \multicolumn{2}{l}{\textbf{Rate of Convergence}} \\\hline
+    \# Subintervals & Approx. Solution & $|| sol - sol_h ||$ & Subintervals & Rate \\\hline
+    1 & -0.00293 & 0.00203 & 1 - 2 &  0.05\\
+    2 & -0.00077 & 0.00210 & 2 - 4 &  -0.89\\
+    4 & -0.00162 & 0.00113 & 4 - 8 &  -0.92\\
+    8 & -0.00064 & 0.00059 & 8 - 16 &  -1.50\\
+    16 & -0.00094 & 0.00021 & 16 - 32 &  -1.32\\
+    32 & -0.00082 & 8.50e-05 & \textbf{Average Rate} & -0.92\\ \hline
+    \multicolumn{5}{c}{\textbf{Function 3}} \\
+    \hline
+    \multicolumn{3}{c}{\textbf{Numerical Integration}} & \multicolumn{2}{l}{\textbf{Rate of Convergence}} \\\hline
+    \# Subintervals & Approx. Solution & $|| sol - sol_h ||$ & Subintervals & Rate \\\hline
+    1 & 12.28124 & 0.64219 & 1 - 2 &  -3.59\\
+    2 & 11.64914 & 0.05324 & 2 - 4 &  -4.58\\
+    4 & 11.63898 & 0.00222 & 4 - 8 &  -3.86\\
+    8 & 11.63905 & 0.00015 & 8 - 16 &  -4.01\\
+    16 & 11.63905 & 9.52e-06 & 16 - 32 &  -4.00\\
+    32 & 11.63905 & 5.93e-07 & \textbf{Average Rate} & -4.01\\ \hline
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \caption{Simpson 3/8 Rule.}
+    \begin{tabular}{ccccc}
+    \hline
+    \multicolumn{5}{c}{\textbf{Function 1}} \\
+    \hline
+    \multicolumn{3}{c}{\textbf{Numerical Integration}} & \multicolumn{2}{l}{\textbf{Rate of Convergence}} \\\hline
+    \# Subintervals & Approx. Solution & $|| sol - sol_h ||$ & Subintervals & Rate \\\hline
+    1 & 0.0 & 0.01772 & 1 - 2 &  3.71\\
+    2 & 0.25 & 0.23227 & 2 - 4 &  -1.11\\
+    4 & 0.125 & 0.10727 & 4 - 8 &  -1.26\\
+    8 & 0.0625 & 0.04477 & 8 - 16 &  -1.73\\
+    16 & 0.03125 & 0.01352 & 16 - 32 &  -3.18\\
+    32 & 0.01623 & 0.00148 & \textbf{Average Rate} & -0.71\\ \hline
+    \multicolumn{5}{c}{\textbf{Function 2}} \\
+    \hline
+    \multicolumn{3}{c}{\textbf{Numerical Integration}} & \multicolumn{2}{l}{\textbf{Rate of Convergence}} \\\hline
+    \# Subintervals & Approx. Solution & $|| sol - sol_h ||$ & Subintervals & Rate \\\hline
+    1 & 0.00148 & 0.00238 & 1 - 2 &  -1.67\\
+    2 & -0.00035 & 0.00028 & 2 - 4 &  -1.40\\
+    4 & -0.00065 & 0.00028 & 4 - 8 &  -0.91\\
+    8 & -0.00077 & 0.00015 & 8 - 16 &  -0.13\\
+    16 & -0.00082 & 0.00013 & 16 - 32 &  -1.92\\
+    32 & -0.00089 & 3.67e-05 & \textbf{Average Rate} & -1.20\\ \hline
+    \multicolumn{5}{c}{\textbf{Function 3}} \\
+    \hline
+    \multicolumn{3}{c}{\textbf{Numerical Integration}} & \multicolumn{2}{l}{\textbf{Rate of Convergence}} \\\hline
+    \# Subintervals & Approx. Solution & $|| sol - sol_h ||$ & Subintervals & Rate \\\hline
+    1 & 11.91167 & 0.27261 & 1 - 2 &  -3.84\\
+    2 & 11.63937 & 0.01908 & 2 - 4 &  -4.28\\
+    4 & 11.63902 & 0.00098 & 4 - 8 &  -3.85\\
+    8 & 11.63905 & 6.82e-05 & 8 - 16 &  -4.01\\
+    16 & 11.63905 & 4.23e-06 & 16 - 32 &  -4.00\\
+    32 & 11.63905 & 2.63e-07 & \textbf{Average Rate} & -4.00\\ \hline
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \caption{Gaussian Quadrature - 1 point.}
+    \begin{tabular}{ccccc}
+    \hline
+    \multicolumn{5}{c}{\textbf{Function 1}} \\
+    \hline
+    \multicolumn{3}{c}{\textbf{Numerical Integration}} & \multicolumn{2}{l}{\textbf{Rate of Convergence}} \\\hline
+    \# Subintervals & Approx. Solution & $|| sol - sol_h ||$ & Subintervals & Rate \\\hline
+    1 & 2.0 & 1.98227 & 1 - 2 &  -6.81\\
+    2 & 0.0 & 0.01772 & 2 - 4 &  0.00\\
+    4 & 3.68e-272 & 0.01772 & 4 - 8 &  0.00\\
+    8 & 6.92e-69 & 0.01772 & 8 - 16 &  0.00\\
+    16 & 2.71e-18 & 0.01772 & 16 - 32 &  0.00\\
+    32 & 7.17e-06 & 0.01771 & \textbf{Average Rate} & -1.36\\ \hline
+    \multicolumn{5}{c}{\textbf{Function 2}} \\
+    \hline
+    \multicolumn{3}{c}{\textbf{Numerical Integration}} & \multicolumn{2}{l}{\textbf{Rate of Convergence}} \\\hline
+    \# Subintervals & Approx. Solution & $|| sol - sol_h ||$ & Subintervals & Rate \\\hline
+    1 & -0.00306 & 0.00216 & 1 - 2 &  0.54\\
+    2 & 0.00027& 0.00315 & 2 - 4 &  -0.69\\
+    4 & -0.00178 & 0.00194 & 4 - 8 &  -0.25\\
+    8 & -0.00020 & 0.00163 & 8 - 16 &  -1.57\\
+    16 & -0.00098 & 0.00055 & 16 - 32 &  -0.92\\
+    32 & -0.00077 & 0.00029 & \textbf{Average Rate} & -0.58\\ \hline
+    \multicolumn{5}{c}{\textbf{Function 3}} \\
+    \hline
+    \multicolumn{3}{c}{\textbf{Numerical Integration}} & \multicolumn{2}{l}{\textbf{Rate of Convergence}} \\\hline
+    \# Subintervals & Approx. Solution & $|| sol - sol_h ||$ & Subintervals & Rate \\\hline
+    1 & 13.70776 & 2.06870 & 1 - 2 &  -1.29\\
+    2 & 11.68971& 0.84657 & 2 - 4 &  -2.27\\
+    4 & 11.64404 & 0.17504 & 4 - 8 &  -1.86\\
+    8 & 11.64035 & 0.04813 & 8 - 16 &  -2.01\\
+    16 & 11.63938 & 0.01193 & 16 - 32 &  -2.00\\
+    32 & 11.63914& 0.00297 & \textbf{Average Rate} & -1.89\\ \hline
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \caption{Gaussian Quadrature - 2 points.}
+    \begin{tabular}{ccccc}
+    \hline
+    \multicolumn{5}{c}{\textbf{Function 1}} \\
+    \hline
+    \multicolumn{3}{c}{\textbf{Numerical Integration}} & \multicolumn{2}{l}{\textbf{Rate of Convergence}} \\\hline
+    \# Subintervals & Approx. Solution & $|| sol - sol_h ||$ & Subintervals & Rate \\\hline
+    1 & 0.0 & 0.01772 & 1 - 2 &  0.00\\
+    2 & 1.12e-194 & 0.01772 & 2 - 4 &  0.00\\
+    4 & 1.62e-49 & 0.01772 & 4 - 8 &  0.00\\
+    8 & 1.88e-13 & 0.01772 & 8 - 16 &  -0.01\\
+    16 & 0.00011 & 0.01760 & 16 - 32 &  -1.37\\
+    32 & 0.01092 & 0.00680 & \textbf{Average Rate} & -0.28\\ \hline
+    \multicolumn{5}{c}{\textbf{Function 2}} \\
+    \hline
+    \multicolumn{3}{c}{\textbf{Numerical Integration}} & \multicolumn{2}{l}{\textbf{Rate of Convergence}} \\\hline
+    \# Subintervals & Approx. Solution & $|| sol - sol_h ||$ & Subintervals & Rate \\\hline
+    1 & -0.00066 & 0.00023 & 1 - 2 &  2.06\\
+    2 & -0.00135 & 0.00099 & 2 - 4 &  0.60\\
+    4 & -0.00069 & 0.00150 & 4 - 8 &  -2.65\\
+    8 & -0.00112 & 0.00023 & 8 - 16 &  -0.58\\
+    16 & -0.00081 & 0.00015 & 16 - 32 &  -1.10\\
+    32 & -0.00095 & 7.48e-05 & \textbf{Average Rate} & -0.33\\ \hline
+    \multicolumn{5}{c}{\textbf{Function 3}} \\
+    \hline
+    \multicolumn{3}{c}{\textbf{Numerical Integration}} & \multicolumn{2}{l}{\textbf{Rate of Convergence}} \\\hline
+    \# Subintervals & Approx. Solution & $|| sol - sol_h ||$ & Subintervals & Rate \\\hline
+    1 & 11.14786 & 0.49119 & 1 - 2 &  -3.82\\
+    2 & 11.63349 & 0.03471 & 2 - 4 &  -4.54\\
+    4 & 11.63910 & 0.00148 & 4 - 8 &  -3.86\\
+    8 & 11.63906 & 0.00010 & 8 - 16 &  -4.01\\
+    16 & 11.63905 & 6.34e-06 & 16 - 32 &  -4.00\\
+    32 & 11.63905 & 3.95e-07 & \textbf{Average Rate} & -4.05\\ \hline
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \caption{Gaussian Quadrature - 3 points.}
+    \begin{tabular}{ccccc}
+    \hline
+    \multicolumn{5}{c}{\textbf{Function 1}} \\
+    \hline
+    \multicolumn{3}{c}{\textbf{Numerical Integration}} & \multicolumn{2}{l}{\textbf{Rate of Convergence}} \\\hline
+    \# Subintervals & Approx. Solution & $|| sol - sol_h ||$ & Subintervals & Rate \\\hline
+    1 & 0.88888 & 0.87116 & 1 - 2 &  -5.62\\
+    2 & 3.82e-56 & 0.01772 & 2 - 4 &  0.00\\
+    4 & 4.49e-15 & 0.01772 & 4 - 8 &  0.00\\
+    8 & 4.95e-05 & 0.01767 & 8 - 16 &  -1.11\\
+    16 & 0.00954 & 0.00818 & 16 - 32 &  -1.26\\
+    32 & 0.02114 & 0.00341 & \textbf{Average Rate} & -1.60\\ \hline
+    \multicolumn{5}{c}{\textbf{Function 2}} \\
+    \hline
+    \multicolumn{3}{c}{\textbf{Numerical Integration}} & \multicolumn{2}{l}{\textbf{Rate of Convergence}} \\\hline
+    \# Subintervals & Approx. Solution & $|| sol - sol_h ||$ & Subintervals & Rate \\\hline
+    1 & -0.00388 & 0.00298 & 1 - 2 &  -4.27\\
+    2 & -0.00104 & 0.00015 & 2 - 4 &  1.73\\
+    4 & -0.00120 & 0.00051 & 4 - 8 &  -2.00\\
+    8 & -0.00079 & 0.00012 & 8 - 16 &  -0.30\\
+    16 & -0.00099 & 0.00010 & 16 - 32 &  -1.23\\
+    32 & -0.00087 & 4.45e-05 & \textbf{Average Rate} & -1.21\\ \hline
+    \multicolumn{5}{c}{\textbf{Function 3}} \\
+    \hline
+    \multicolumn{3}{c}{\textbf{Numerical Integration}} & \multicolumn{2}{l}{\textbf{Rate of Convergence}} \\\hline
+    \# Subintervals & Approx. Solution & $|| sol - sol_h ||$ & Subintervals & Rate \\\hline
+    1 & 11.66141&  0.02235 & 1 - 2 &  -2.16\\
+    2 & 11.64364 & 0.00499 & 2 - 4 &  -9.91\\
+    4 & 11.63905 & 5.18e-06 & 4 - 8 &  -5.86\\
+    8 & 11.63905 & 8.91e-08 & 8 - 16 &  -6.01\\
+    16 & 11.63905 & 1.37e-09 & 16 - 32 &  -6.00\\
+    32 & 11.63905 & 2.14e-11 & \textbf{Average Rate} & -5.99\\ \hline
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \caption{Gaussian Quadrature - 4 points.}
+    \begin{tabular}{ccccc}
+    \hline
+    \multicolumn{5}{c}{\textbf{Function 1}} \\
+    \hline
+    \multicolumn{3}{c}{\textbf{Numerical Integration}} & \multicolumn{2}{l}{\textbf{Rate of Convergence}} \\\hline
+    \# Subintervals & Approx. Solution & $|| sol - sol_h ||$ & Subintervals & Rate \\\hline
+    1 & 0.56888 & 0.55116 & 1 - 2 &  -4.96\\
+    2 & 6.57e-11 & 0.01772 & 2 - 4 &  -0.04\\
+    4 & 0.00048 & 0.01724 & 4 - 8 &  -2.65\\
+    8 & 0.01497 & 0.00275 & 8 - 16 &  0.26\\
+    16 & 0.02101 & 0.00328 & 16 - 32 &  -3.05\\
+    32 & 0.01732 & 0.00039 & \textbf{Average Rate} & -2.09\\ \hline
+    \multicolumn{5}{c}{\textbf{Function 2}} \\
+    \hline
+    \multicolumn{3}{c}{\textbf{Numerical Integration}} & \multicolumn{2}{l}{\textbf{Rate of Convergence}} \\\hline
+    \# Subintervals & Approx. Solution & $|| sol - sol_h ||$ & Subintervals & Rate \\\hline
+    1 & -0.00091 & 2.01e-05 & 1 - 2 &  5.11\\
+    2 & -0.00159 & 0.00069 & 2 - 4 &  -2.74\\
+    4 & -0.00096 & 0.00010 & 4 - 8 &  -1.24\\
+    8 & -0.00093 & 4.39e-05 & 8 - 16 &  0.01\\
+    16 & -0.00086 & 4.43e-05 & 16 - 32 &  -0.14\\
+    32 & -0.00090 & 4.01e-05 & \textbf{Average Rate} & 0.20\\ \hline
+    \multicolumn{5}{c}{\textbf{Function 3}} \\
+    \hline
+    \multicolumn{3}{c}{\textbf{Numerical Integration}} & \multicolumn{2}{l}{\textbf{Rate of Convergence}} \\\hline
+    \# Subintervals & Approx. Solution & $|| sol - sol_h ||$ & Subintervals & Rate \\\hline
+    1 & 11.63120 & 0.00785 & 1 - 2 &  -2.24\\
+    2 & 11.64072 & 0.00166 & 2 - 4 &  -27.19\\
+    4 & 11.63905 & 1.08e-11 & 4 - 8 &  -9.55\\
+    8 & 11.63905 & 1.45e-14 & 8 - 16 &  0.22\\
+    16 & 11.63905 & 1.69e-14 & 16 - 32 &  0.68\\
+    32 & 11.63905 & 2.71e-14 & \textbf{Average Rate} & -7.61\\ \hline
+\end{tabular}
+\end{table}
 
 \subsection{Comparison between Numerical and Analytical Results}
