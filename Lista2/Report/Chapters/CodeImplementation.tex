@@ -36,7 +36,7 @@ The function to be integrated is then defined, here is shown the polynomial $x$,
 
 The exact solution is set in line 24, and the error is computed in line 25. The results can also be printed in a \texttt{.txt} file, which is not presented here.
 
-\subsection{The Interval Class}
+\subsection{Interval Class}
 The Interval class was developed by Giovane Avancini. However, a few modifictations were made to adapt it to the project's structure. This is the main class of this work, responsible for dealing with the interval data structure and computing the numerical integration.
 
 The fields from the Interval class are shown in Code \ref{code:Interval_fields}. Note that, since the dataclass decorator is used, the fields are automatically initialized in the constructor, not being necessary to define it explicitly.
@@ -95,7 +95,7 @@ def ComputeError(self)->None:
 
 Note that there is a difference between the variable $interval$ and the class $Interval$. To be able to access the variable class $total\_error$, the class name is used. One cite the other methods from the Interval class, such as the Setters and Getetrs, responsible for setting and getting the class fields; the set of functions used to set the integration rule, and the method used to set the exact solution, which has been slightly modified from the original code, in order to accept a refinement level as an argument.
 
-\subsection{The IntegrationRule Class}
+\subsection{IntegrationRule Class}
 The IntegrationRule class is what it's called an \textit{abstract class}. It is a class that cannot be instantiated, but it is used as a base class for other classes. In this case, it is used as a base class for the numerical integration rule classes. 
 
 As its abstract methods, one can cite the IntegrationPoints method, in which the integration points are computed, the Xmap method, which maps the integration points to the interval, and the DetJac method, which computes the Jacobian determinant. An observation is made at this point. The methods' names might not be appropriate for the one-third and three-eighths Simpson, and the Trapezoidal rules. However, the names come from the ones employed in Gauss-Legendre implementations. 
@@ -115,7 +115,7 @@ def Integrate(self, func: callable, a: float, b: float, n_points: int)->float:
 
 The function ComputeRequiredData, in line 6, is responsible for computing the mapping of the integration points to the interval, and the Jacobian determinant. Again, it is emphasized the fact that the Simpsons and Trapezoidal rules do not have a Jacobian determinant, but the method name is kept for consistency. Instead, it is used the constant that multiplies the sum of the function evaluations. 
 
-\subsection{The SimpsonOneThirdRule Class}
+\subsection{SimpsonOneThirdRule Class}
 The SimpsonOneThirdRule class (Code \ref{code:SimpsonOneThirdRule}) is where the method is properly developed. It inherits from the IntegrationRule class, and the methods IntegrationPoints, Xmap, and DetJac are implemented.
 \begin{lstlisting}[language=python, caption={SimpsonOneThirdRule Class.}, label={code:SimpsonOneThirdRule}]
 from IntegrationRule import IntegrationRule
@@ -138,7 +138,7 @@ In line 5, the third argument passed to the function is not used, the reason why
 In this rule, there is no mapping function, that is why the Xmap returns the same value as the input. For the same reason, the DetJac returns the multiplication constant for the rule.
 
 
-\subsection{The SimpsonThreeEighthsRule Class}
+\subsection{SimpsonThreeEighthsRule Class}
 Simarly to the SimpsonOneThirdRule class, the SimpsonThreeEighthsRule class (Code \ref{code:SimpsonThreeEighthsRule}) is implemented.
 \begin{lstlisting}[language=python, caption={SimpsonThreeEighthsRule Class.}, label={code:SimpsonThreeEighthsRule}]
 from IntegrationRule import IntegrationRule
@@ -156,7 +156,7 @@ class SimpsonThreeEighthsRule(IntegrationRule):
         self.detjac = (b - a)
 \end{lstlisting}
 
-\subsection{The TrapezoidalRule Class}
+\subsection{TrapezoidalRule Class}
 The TrapezoidalRule class (Code \ref{code:TrapezoidalRule}) is implemented in the same way as the previous classes.
 \begin{lstlisting}[language=python, caption={TrapezoidalRule Class.}, label={code:TrapezoidalRule}]
 from IntegrationRule import IntegrationRule
@@ -174,7 +174,7 @@ class TrapezoidalRule(IntegrationRule):
         self.detjac = (b - a)
 \end{lstlisting}
 
-\subsection{The GaussLegendreRule Class}
+\subsection{GaussLegendreRule Class}
 The last class implemented in this work. The main difference between the GaussLegendreRule (Code \ref{code:GaussLegendreRule}) and the others is the existence of a mapping function and a Jacobian determinant. 
 
 The number of points is a parameter for the IntegrationPoints method, which defines the points and weights to be used during the integration.
