@@ -1,0 +1,11 @@
+
+Interval: [0, 2.5464790894703255]
+Refinement Level: 0
+Numerical Integral: 11.63905843787582
+Analytic Integral: 11.639058445630383
+Integration Error: 0.0
+Number of Sub-Intervals: 2
+Integration Method: SimpsonThreeEighthsRule
+ 
+------------------------------
+Total Error: 2.638477590577448e-07

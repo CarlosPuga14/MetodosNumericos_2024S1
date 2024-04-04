@@ -33,7 +33,3 @@
 *.pyc
 *.py[cod]
 __pycache__/
-
-*.txt
-
-
