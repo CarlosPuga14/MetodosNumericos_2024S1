@@ -23,14 +23,16 @@ SICI: callable = special.sici
 #-------------------
 #    PARAMETERS
 #-------------------
-epot: int = 4
-method: int = 1
-npoints: int = 3
-ref_level: int = 2
+epot: int = 0
+method: int = 3
+npoints: int = 4
+ref_level: int = 5
 n_divisions: int = 5
 
-a: float = 0.
-b: float = 8/PI
+a: float = 0.0
+b: float = 2.0
+
+printTxt: bool = False
 
 #-------------------
 #    FUNCTION 1
@@ -100,10 +102,8 @@ def main()->int:
     interval = Interval(_a = a, _b = b, _n_refinements = n_divisions, _n_points = npoints)
 
     # defining the function to be integrated and the exact solution
-    func = Function3
-    exact = IntFunction3
-
-    printTxt = True
+    func = Function1
+    exact = IntFunction1
 
     # defining the numerical method to be used
     match method:
@@ -139,4 +139,4 @@ def main()->int:
     return 0
 
 if __name__ == "__main__":
-    main()
+        main()

@@ -27,6 +27,3 @@ class SimpsonOneThirdRule(IntegrationRule):
         Method to compute the determinant of the Jacobian
         """
         self.detjac = (b - a) / 2
-
-
-    
