@@ -13,6 +13,7 @@ ZEROS: callable = np.zeros_like
 OUTER: callable = np.outer
 ARRAY: callable = np.array
 IDENTITY: callable = np.identity
+SQRT: callable = np.sqrt
 
 @dataclass
 class Matrix:
@@ -69,39 +70,95 @@ class Matrix:
             self.A_Decomposed[i+1::, i] /= self.A_Decomposed[i, i]
             self.A_Decomposed[i+1::, i+1::] -= OUTER(self.A_Decomposed[i+1::, i], self.A_Decomposed[i, i+1::])
 
-        # Fill L 
+        # Fill L
         for i in range(1, size):
             for j in range(i):
                 self.L[i, j] = self.A_Decomposed[i, j]
-                
+
         # Fill U
         for j in range(size):
             for i in range(j+1):
                 self.U[i, j] = self.A_Decomposed[i, j]
 
+
     def LDU_Decomposition(self)->None:
         """
         Decompose the matrix using LDU decomposition
         """
-        raise NotImplementedError("LDU decomposition not implemented yet")
+        size = len(self.A_Decomposed)
+
+        # Rank 1 update
+        for i in range(size):
+            self.A_Decomposed[i, i+1::] /= self.A_Decomposed[i, i]
+            self.A_Decomposed[i+1::, i] /= self.A_Decomposed[i, i]
+
+            self.A_Decomposed[i+1::, i+1::] -= OUTER(self.A_Decomposed[i+1::, i], self.A_Decomposed[i, i+1::]) * self.A_Decomposed[i, i]
+
+        # Fill L
+        for i in range(1, size):
+            for j in range(i):
+                self.L[i, j] = self.A_Decomposed[i, j]
+
+        # Fill U
+        for j in range(1, size):
+            for i in range(j):
+                self.U[i, j] = self.A_Decomposed[i, j]
+
+        # Fill D
+        for i in range(size):
+            self.D[i, i] = self.A_Decomposed[i, i]
     
     def LLt_Decomposition(self)->None:
         """
         Decompose the matrix using LLt (Cholesky) decomposition
         """
-        raise NotImplementedError("LLt decomposition not implemented yet")
+        size = len(self.A_Decomposed)
+
+        for i in range(size):
+            self.A_Decomposed[i, i] = SQRT(self.A_Decomposed[i, i])
+
+            self.A_Decomposed[i+1::, i] /= self.A_Decomposed[i, i]
+            self.A_Decomposed[i, i+1::] /= self.A_Decomposed[i, i]
+
+            self.A_Decomposed[i+1::, i+1::] -= OUTER(self.A_Decomposed[i+1::, i], self.A_Decomposed[i+1::, i])
+
+        # Fill L
+        for i in range(size):
+            for j in range(i+1):
+                self.L[i, j] = self.A_Decomposed[i, j]
+
+        self.U = self.L.T
     
     def LDLt_Decomposition(self)->None:
         """
         Decompose the matrix using LDLt decomposition
         """
-        raise NotImplementedError("LDLt decomposition not implemented yet")
+        size = len(self.A_Decomposed)
+
+        # Rank 1 update
+        for i in range(size):
+            self.A_Decomposed[i, i+1::] /= self.A_Decomposed[i, i]
+            self.A_Decomposed[i+1::, i] /= self.A_Decomposed[i, i]
+
+            self.A_Decomposed[i+1::, i+1::] -= OUTER(self.A_Decomposed[i+1::, i], self.A_Decomposed[i, i+1::]) * self.A_Decomposed[i, i]
+
+        # Fill L
+        for i in range(size):
+            for j in range(i):
+                self.L[i, j] = self.A_Decomposed[i, j]
+        
+        # Fill U
+        self.U = self.L.T
+
+        # Fill D
+        for i in range(size):
+            self.D[i, i] = self.A_Decomposed[i, i]
 
     def Decompose(self)->None:
         """
         Decompose the matrix using the specified decomposition
         """
-        if self.decomposition_type in ["LDU", "LLt", "LDLt"] and self.pivoting:
+        if (self.decomposition_type in ["LDU", "LLt", "LDLt"]) and (self.pivoting):
             raise Exception(f"Pivoting not defined for the '{self.decomposition_type}' decomposition. Please try again with 'LU' decomposition.")
 
         if self.decomposition_type == "LU":
@@ -111,13 +168,31 @@ class Matrix:
             self.LDU_Decomposition()
 
         elif self.decomposition_type == "LLt":
+            if (not self.Check_Symmetry()) and (not self.Check_PositiveDefinite()):
+                raise Exception("The matrix is not symmetric positive definite. Please choose another decomposition type.")
+            
             self.LLt_Decomposition()
 
         elif self.decomposition_type == "LDLt":
+            if not self.Check_Symmetry():
+                raise Exception("The matrix is not symmetric positive definite. Please choose another decomposition type.")
+            
             self.LDLt_Decomposition()
 
         else:
             text = f"The '{self.decomposition_type}' decomposition is not valid. Please choose one of the following: "
             text += "LU, LDU, LLt, LDLt"
-            
+
             raise Exception(text)
+        
+    def Check_Symmetry(self)->bool:
+        """
+        Check if the matrix is symmetric
+        """
+        return np.allclose(self.A, self.A.T)
+    
+    def Check_PositiveDefinite(self)->bool:
+        """
+        Check if the matrix is positive definite
+        """
+        return np.all(np.linalg.eigvals(self.A) > 0)
