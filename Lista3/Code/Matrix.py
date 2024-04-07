@@ -25,10 +25,10 @@ class Matrix:
     Class to represent a matrix and its decomposition
     """
     A: np.array # Matrix
-    size: int = field(init=False) # Matrix size
     pivoting: bool = False # Pivoting flag
-
     decomposition_type: str = None # Decomposition type
+    size: int = field(init=False) # Matrix size
+
     A_Decomposed: np.array = field(init=False) # Decomposed matrix
     L: np.array = field(init=False) # Lower matrix
     U: np.array = field(init=False) # Upper matrix
@@ -55,17 +55,14 @@ class Matrix:
     def SetDecompositionMethod(self, decomposition_type: str)->None:
         """
         Set the decomposition type
-        """
-        if not isinstance(decomposition_type, str):
-            raise Exception("The decomposition type must be a string")
-        
+        """        
         if not decomposition_type in ["LU", "LDU", "LLt", "LDLt"]:
             raise Exception(f"The '{decomposition_type}' decomposition is not valid. Please choose one of the following: LU, LDU, LLt, LDLt")
         
         self.decomposition_type = decomposition_type
 
     def PivotMatrix(self)->None:
-        raise NotImplementedError("Pivoting not implemented yet")
+        raise NotImplementedError("Pivoting not implemented yet. Please implement me!")
     
     def RankOneUpdate(self)->None:
         """
@@ -131,8 +128,8 @@ class Matrix:
         """
         self.RankOneUpdate()
         self.Fill_L()
-        self.Fill_U()
         self.Fill_D()
+        self.Fill_U()
     
     def LLt_Decomposition(self)->None:
         """
@@ -150,6 +147,18 @@ class Matrix:
         self.Fill_L()
         self.Fill_D()
         self.U = self.L.T
+
+    def Check_Symmetry(self)->bool:
+        """
+        Check if the matrix is symmetric
+        """
+        return np.allclose(self.A, self.A.T)
+    
+    def Check_PositiveDefinite(self)->bool:
+        """
+        Check if the matrix is positive definite
+        """
+        return np.all(np.linalg.eigvals(self.A) > 0)
 
     def Decompose(self)->None:
         """
@@ -186,34 +195,16 @@ class Matrix:
         """
         Find the inverse of the matrix using the decomposition
         """
-        if self.decomposition_type == "LU":
+        if self.decomposition_type in ["LU", "LLt"]:
             self.decomposd_inverse = INVERSE(self.L @ self.U)
         
-        elif self.decomposition_type == "LDU":
-            self.decomposd_inverse = INVERSE(self.L @ self.D @ self.U)
-        
-        elif self.decomposition_type == "LLt":
-            self.decomposd_inverse = INVERSE(self.L @ self.U)
-        
-        elif self.decomposition_type == "LDLt":
-            self.decomposd_inverse = INVERSE(self.L @ self.D @ self.U)
+        elif self.decomposition_type in ["LDU", "LDLt"]:
+            self.decomposd_inverse = INVERSE(self.L @ self.D @ self.U) 
         
         else:
             raise Exception(f"The '{self.decomposition_type}' decomposition is not valid. Please choose one of the following: LU, LDU, LLt, LDLt")
-        
-    def Check_Symmetry(self)->bool:
-        """
-        Check if the matrix is symmetric
-        """
-        return np.allclose(self.A, self.A.T)
     
-    def Check_PositiveDefinite(self)->bool:
-        """
-        Check if the matrix is positive definite
-        """
-        return np.all(np.linalg.eigvals(self.A) > 0)
-    
-    def Print(self, file = None)->None:
+    def Print(self, file)->None:
         """
         Print the matrix and its decomposition
         """
