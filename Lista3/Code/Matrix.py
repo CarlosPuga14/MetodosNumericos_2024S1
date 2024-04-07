@@ -14,34 +14,45 @@ OUTER: callable = np.outer
 ARRAY: callable = np.array
 IDENTITY: callable = np.identity
 SQRT: callable = np.sqrt
+INVERSE: callable = np.linalg.inv
 
+# -----------------
+# ----- CLASS -----
+# -----------------
 @dataclass
 class Matrix:
     """
     Class to represent a matrix and its decomposition
     """
     A: np.array # Matrix
+    size: int = field(init=False) # Matrix size
     pivoting: bool = False # Pivoting flag
-    A_Decomposed: np.array = field(init=False) # Decomposed matrix
+
     decomposition_type: str = None # Decomposition type
-    
+    A_Decomposed: np.array = field(init=False) # Decomposed matrix
     L: np.array = field(init=False) # Lower matrix
     U: np.array = field(init=False) # Upper matrix
     D: np.array = field(init=False) # Diagonal matrix
 
+    inverseA: np.array = field(init=False) # Inverse of A
+    decomposd_inverse: np.array = field(init=False) # Inverse of A by decomposition
+
     def __post_init__(self):
-        size = len(self.A)
+        self.size = len(self.A)
 
         self.A = ARRAY(self.A)
-        self.L = IDENTITY(size)
-        self.U = IDENTITY(size)
-        self.D = IDENTITY(size)
         self.A_Decomposed = self.A.copy()
+        self.inverseA = INVERSE(self.A)
+
+        self.L = IDENTITY(self.size)
+        self.U = IDENTITY(self.size)
+        self.D = IDENTITY(self.size)
+        self.decomposd_inverse = ZEROS(self.A)
 
     # -----------------
     # ---- METHODS ----
     # -----------------
-    def SetDecomposition(self, decomposition_type: str)->None:
+    def SetDecompositionMethod(self, decomposition_type: str)->None:
         """
         Set the decomposition type
         """
@@ -55,6 +66,53 @@ class Matrix:
 
     def PivotMatrix(self)->None:
         raise NotImplementedError("Pivoting not implemented yet")
+    
+    def RankOneUpdate(self)->None:
+        """
+        Perform a rank 1 update
+        """
+        for i in range(self.size):
+            matii_correction = 1.0
+
+            if self.decomposition_type in ["LDU", "LDLt"]:
+                matii_correction = self.A_Decomposed[i, i]
+                self.A_Decomposed[i, i+1::] /= self.A_Decomposed[i, i]
+
+            elif self.decomposition_type == "LLt":
+                self.A_Decomposed[i, i] /= SQRT(self.A_Decomposed[i, i])
+                self.A_Decomposed[i, i+1::] /= self.A_Decomposed[i, i]
+
+            self.A_Decomposed[i+1::, i] /= self.A_Decomposed[i, i]
+            self.A_Decomposed[i+1::, i+1::] -= OUTER(self.A_Decomposed[i+1::, i], self.A_Decomposed[i, i+1::]) * matii_correction
+
+    def Fill_L(self)->None:
+        """
+        Fill the lower matrix
+        """
+        diagonal_aux1 = 0 if self.decomposition_type == "LLt" else 1 # row used to start filling the matrix
+        diagonal_aux2 = 1 if self.decomposition_type == "LLt" else 0 # column used to start filling the matrix
+
+        for i in range(diagonal_aux1, self.size):
+            for j in range(i + diagonal_aux2):
+                self.L[i, j] = self.A_Decomposed[i, j]
+
+    def Fill_U(self)->None:
+        """
+        Fill the upper matrix
+        """
+        diagonal_aux1 = 0 if self.decomposition_type == "LU" else 1 # row used to start filling the matrix
+        diagonal_aux2 = 1 if self.decomposition_type == "LU" else 0 # column used to start filling the matrix
+
+        for j in range(diagonal_aux1, self.size):
+            for i in range(j + diagonal_aux2):
+                self.U[i, j] = self.A_Decomposed[i, j]
+
+    def Fill_D(self)->None:
+        """
+        Fill the diagonal matrix
+        """
+        for i in range(self.size):
+            self.D[i, i] = self.A_Decomposed[i, i]
 
     def LU_Decomposition(self)->None:
         """
@@ -62,97 +120,36 @@ class Matrix:
         """
         if self.pivoting:
             self.PivotMatrix()
-
-        size = len(self.A_Decomposed)
         
-        # Rank 1 update
-        for i in range(size):
-            self.A_Decomposed[i+1::, i] /= self.A_Decomposed[i, i]
-            self.A_Decomposed[i+1::, i+1::] -= OUTER(self.A_Decomposed[i+1::, i], self.A_Decomposed[i, i+1::])
-
-        # Fill L
-        for i in range(1, size):
-            for j in range(i):
-                self.L[i, j] = self.A_Decomposed[i, j]
-
-        # Fill U
-        for j in range(size):
-            for i in range(j+1):
-                self.U[i, j] = self.A_Decomposed[i, j]
-
+        self.RankOneUpdate()
+        self.Fill_L()
+        self.Fill_U()
 
     def LDU_Decomposition(self)->None:
         """
         Decompose the matrix using LDU decomposition
         """
-        size = len(self.A_Decomposed)
-
-        # Rank 1 update
-        for i in range(size):
-            self.A_Decomposed[i, i+1::] /= self.A_Decomposed[i, i]
-            self.A_Decomposed[i+1::, i] /= self.A_Decomposed[i, i]
-
-            self.A_Decomposed[i+1::, i+1::] -= OUTER(self.A_Decomposed[i+1::, i], self.A_Decomposed[i, i+1::]) * self.A_Decomposed[i, i]
-
-        # Fill L
-        for i in range(1, size):
-            for j in range(i):
-                self.L[i, j] = self.A_Decomposed[i, j]
-
-        # Fill U
-        for j in range(1, size):
-            for i in range(j):
-                self.U[i, j] = self.A_Decomposed[i, j]
-
-        # Fill D
-        for i in range(size):
-            self.D[i, i] = self.A_Decomposed[i, i]
+        self.RankOneUpdate()
+        self.Fill_L()
+        self.Fill_U()
+        self.Fill_D()
     
     def LLt_Decomposition(self)->None:
         """
         Decompose the matrix using LLt (Cholesky) decomposition
         """
-        size = len(self.A_Decomposed)
-
-        for i in range(size):
-            self.A_Decomposed[i, i] = SQRT(self.A_Decomposed[i, i])
-
-            self.A_Decomposed[i+1::, i] /= self.A_Decomposed[i, i]
-            self.A_Decomposed[i, i+1::] /= self.A_Decomposed[i, i]
-
-            self.A_Decomposed[i+1::, i+1::] -= OUTER(self.A_Decomposed[i+1::, i], self.A_Decomposed[i+1::, i])
-
-        # Fill L
-        for i in range(size):
-            for j in range(i+1):
-                self.L[i, j] = self.A_Decomposed[i, j]
-
+        self.RankOneUpdate()
+        self.Fill_L()
         self.U = self.L.T
     
     def LDLt_Decomposition(self)->None:
         """
         Decompose the matrix using LDLt decomposition
         """
-        size = len(self.A_Decomposed)
-
-        # Rank 1 update
-        for i in range(size):
-            self.A_Decomposed[i, i+1::] /= self.A_Decomposed[i, i]
-            self.A_Decomposed[i+1::, i] /= self.A_Decomposed[i, i]
-
-            self.A_Decomposed[i+1::, i+1::] -= OUTER(self.A_Decomposed[i+1::, i], self.A_Decomposed[i, i+1::]) * self.A_Decomposed[i, i]
-
-        # Fill L
-        for i in range(size):
-            for j in range(i):
-                self.L[i, j] = self.A_Decomposed[i, j]
-        
-        # Fill U
+        self.RankOneUpdate()
+        self.Fill_L()
+        self.Fill_D()
         self.U = self.L.T
-
-        # Fill D
-        for i in range(size):
-            self.D[i, i] = self.A_Decomposed[i, i]
 
     def Decompose(self)->None:
         """
@@ -185,6 +182,25 @@ class Matrix:
 
             raise Exception(text)
         
+    def FindInverse(self)->None:
+        """
+        Find the inverse of the matrix using the decomposition
+        """
+        if self.decomposition_type == "LU":
+            self.decomposd_inverse = INVERSE(self.L @ self.U)
+        
+        elif self.decomposition_type == "LDU":
+            self.decomposd_inverse = INVERSE(self.L @ self.D @ self.U)
+        
+        elif self.decomposition_type == "LLt":
+            self.decomposd_inverse = INVERSE(self.L @ self.U)
+        
+        elif self.decomposition_type == "LDLt":
+            self.decomposd_inverse = INVERSE(self.L @ self.D @ self.U)
+        
+        else:
+            raise Exception(f"The '{self.decomposition_type}' decomposition is not valid. Please choose one of the following: LU, LDU, LLt, LDLt")
+        
     def Check_Symmetry(self)->bool:
         """
         Check if the matrix is symmetric
@@ -196,3 +212,24 @@ class Matrix:
         Check if the matrix is positive definite
         """
         return np.all(np.linalg.eigvals(self.A) > 0)
+    
+    def Print(self, file = None)->None:
+        """
+        Print the matrix and its decomposition
+        """
+        with open(file, "w") as f:
+            print(f"********** {self.decomposition_type} Decomposition **********\n", file=f)
+            print(f"Matrix A: \n{self.A}\n", file=f)
+            print(f"Matrix A Decomposed: \n{self.A_Decomposed}\n", file=f)
+
+            print(f"Matrix L: \n{self.L}\n", file=f)
+            print(f"Matrix U: \n{self.U}\n", file=f)
+            print(f"Matrix D: \n{self.D}\n", file=f)
+
+            print(f"Inverse A: \n{INVERSE(self.A)}\n", file=f)
+            print(f"Inverse L: \n{INVERSE(self.L)}\n", file=f)
+            print(f"Inverse U: \n{INVERSE(self.U)}\n", file=f)
+            print(f"Inverse D: \n{INVERSE(self.D)}\n", file=f)
+            print(f"Inverse of A Decomposed: \n{self.decomposd_inverse}\n", file=f)
+
+            print(f"(Inverse of A) - (Decomposed Inverse): \n{self.inverseA - self.decomposd_inverse}\n", file=f)
