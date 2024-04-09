@@ -1,10 +1,10 @@
 \section{Code Implementation} \label{sec:code-implementation}
-In this section, a brief explanation of how the numerical methods for integration are implemented. The code is written in Python, and a total of six classes are developed, besides the main function file. Although parts of the code are presented here, the complete code is available on the GitHub repository, which can be found in the Appendix \ref{sec:github}.
+In this section, a brief explanation of how the numerical integration methods are implemented. The code is written in Python, and a total of six classes are developed, besides the main function file. Although parts of the code are presented here, the complete code is available on the GitHub repository, which can be found in the Appendix \ref{sec:github}.
 
 \subsection{Main File}
-The main function is written in the \texttt{main.py} file. This file is responsible for structuring the code and creating objects for numerical integration analysis. An example of implementation for the main function is shown in Code \ref{code:main}.
+The main function is responsible for structuring the code and creating objects for numerical integration analysis. An example of implementation for the main function is shown in Code \ref{code:main}.
 \begin{lstlisting}[language=Python, caption={Main function.}, label={code:main}] 
-def main():
+def main()->None:
     n_divisions = 2
     npoints = 4
     interval = Interval(0.0, 1.0, n_divisions, npoints)
@@ -26,13 +26,11 @@ def main():
     # computing the error
     interval.SetExactSolution(exact, ref_level)
     interval.ComputeError()
-
-    return 0
 \end{lstlisting}
 
-In line 1 the Interval class is imported, and in line 7 an object of this class is created. As input data, it takes the limits of the interval (in this case $0$ and $1$), the number of divisions, and the number of integration points. 
+In line 1 the Interval class is imported, and in line 7 an object of this class is created. As input, it takes the limits of the interval (in this case $0$ and $1$), the number of divisions, and the number of integration points. 
 
-The function to be integrated is then defined, here is shown the polynomial $x$, and its exact solution, $0.5x^2$. The integration rule is set in line 18, and the function is integrated in line 21. In this example, it is used the Gauss-Legendre integration rule. 
+The function to be integrated is then defined. Here, is shown the polynomial $x$, and its exact solution, $0.5x^2$. The integration rule is set in line 18, and the function is integrated in line 21. In this example, it is used the Gauss-Legendre integration rule. 
 
 The exact solution is set in line 24, and the error is computed in line 25. The results can also be printed in a \texttt{.txt} file, which is not presented here.
 
@@ -62,7 +60,7 @@ The floats $a$ and $b$ represents the integration interval, $n\_refinement$ is t
 
 From the $method$ field on, the fields are not initialized at the moment of the object creation, which explains the \texttt{init=False} argument. The $method$ field is an object from the IntegrationRule class, $sub\_intervals$ is a list that might contain the interval subdivisions, $numerical\_integral$ is the result of the numerical integration, $analytic\_integral$ is the exact solution, and the error between the numerical and the exact solution is stored in $integration\_error$.
 
-Among the methods of the Interval class, one stands out: the NumericalIntegrate method. This method is responsible for computing the numerical integration of a given function. The code for this method is shown in Code \ref{code:NumericalIntegrate}. 
+Among the methods of the Interval class, one stands out: the NumericalIntegrate method. This method computes the numerical integration of a given function. The code for this method is shown in Code \ref{code:NumericalIntegrate}. 
 \begin{lstlisting}[language=python, caption={NumericalIntegrate Method.}, label={code:NumericalIntegrate}]
 def NumericalIntegrate(self, func: callable, ref_level: int = 0)->float:
     self.numerical_integral = 0.0
@@ -93,14 +91,14 @@ def ComputeError(self)->None:
         interval.ComputeError(ref_level)
 \end{lstlisting}
 
-Note that there is a difference between the variable $interval$ and the class $Interval$. To be able to access the variable class $total\_error$, the class name is used. One cite the other methods from the Interval class, such as the Setters and Getetrs, responsible for setting and getting the class fields; the set of functions used to set the integration rule, and the method used to set the exact solution, which has been slightly modified from the original code, in order to accept a refinement level as an argument.
+Note that there is a difference between the variable $interval$ and the class $Interval$. To be able to access the variable class $total\_error$, the class name is used.
 
 \subsection{IntegrationRule Class}
 The IntegrationRule class is what it's called an \textit{abstract class}. It is a class that cannot be instantiated, but it is used as a base class for other classes. In this case, it is used as a base class for the numerical integration rule classes. 
 
-As its abstract methods, one can cite the IntegrationPoints method, in which the integration points are computed, the Xmap method, which maps the integration points to the interval, and the DetJac method, which computes the Jacobian determinant. An observation is made at this point. The methods' names might not be appropriate for the one-third and three-eighths Simpson, and the Trapezoidal rules. However, the names come from the ones employed in Gauss-Legendre implementations. 
+As its abstract methods, one cite the IntegrationPoints method, in which the integration points are computed, the Xmap method, which maps the integration points to the interval, and the DetJac method, which computes the Jacobian determinant. An observation is made at this point. The methods' names might not be appropriate for the one-third and three-eighths Simpson, and the Trapezoidal rules. However, the names come from the ones employed in Gauss-Legendre implementations. 
 
-This class takes in advantage the fact that, for all numerical methods herein presented, the integration process (see Eq. \eqref{eq:general_integral}) is the same, only the integration points and weights change. Using this, the integration process is implemented in the Integrate method, shown in Code \ref{code:Integrate}.
+This class takes in advantage the fact that, for all numerical methods herein presented, the integration process (see Eq. \eqref{eq:general_integral}) is the same, only the integration points and weights change. Using this, the integration evaluation is implemented in the Integrate method, shown in Code \ref{code:Integrate}.
 \begin{lstlisting}[language=python, caption={Integrate Method.}, label={code:Integrate}]
 def Integrate(self, func: callable, a: float, b: float, n_points: int)->float:
     self.IntegrationPoints(a, b, n_points)
