@@ -37,6 +37,9 @@ class Matrix:
     inverseA: np.array = field(init=False) # Inverse of A
     decomposd_inverse: np.array = field(init=False) # Inverse of A by decomposition
 
+    permuted_rows: list = field(default_factory=list) # permuted rows
+    permuted_cols: list = field(default_factory=list) # permuted columns
+
     def __post_init__(self):
         self.size = len(self.A)
 
@@ -49,8 +52,11 @@ class Matrix:
         self.D = IDENTITY(self.size)
         self.decomposd_inverse = ZEROS(self.A)
 
+        self.permuted_rows = [i for i in range(self.size)]
+        self.permuted_cols = [i for i in range(self.size)]
+
     # -----------------
-    # ---- METHODS ----
+    # ---- SETTERS ----
     # -----------------
     def SetDecompositionMethod(self, decomposition_type: str)->None:
         """
@@ -60,10 +66,11 @@ class Matrix:
             raise Exception(f"The '{decomposition_type}' decomposition is not valid. Please choose one of the following: LU, LDU, LLt, LDLt")
         
         self.decomposition_type = decomposition_type
-
-    def PivotMatrix(self)->None:
-        raise NotImplementedError("Pivoting not implemented yet. Please implement me!")
     
+    # -----------------
+    # ---- GENERAL ----
+    # ---- METHODS ----
+    # -----------------
     def RankOneUpdate(self)->None:
         """
         Perform a rank 1 update
@@ -111,13 +118,97 @@ class Matrix:
         for i in range(self.size):
             self.D[i, i] = self.A_Decomposed[i, i]
 
+    # -----------------
+    # ---- PIVOTING ---
+    # ---- METHODS ----
+    # -----------------
+    def FindMaxRowAndCol(self, submatrix:np.array)->tuple[int]:
+        """
+        Find the maximum value in the submatrix
+        """
+        max_number = submatrix[0, 0]
+
+        for i, row in enumerate(submatrix):
+            for j, number in enumerate(row):
+                if abs(number) > max_number:
+                        max_number = number
+                        perm_row_index = i
+                        perm_col_index = j
+
+        return perm_row_index, perm_col_index
+
+
+    def PermutationMatrix(self, permutation_vector, rows=True)->np.array:
+        """
+        Create a permutation matrix
+        """
+        perm_matrix = np.zeros((self.size, self.size))
+
+        for i, index in enumerate(permutation_vector):
+            if rows:
+                perm_matrix[i, index] = 1
+
+            else:
+                perm_matrix[index, i] = 1
+
+        return perm_matrix
+
+    def UpdatedPermutationVector(self, rows, cols, row_max, col_max, index)->tuple[list]:
+        """
+        Update the permutation vector
+        """
+        rows[index], rows[row_max] = rows[row_max], rows[index]
+        cols[index], cols[col_max] = cols[col_max], cols[index]
+
+        self.permuted_rows[index], self.permuted_rows[row_max] = self.permuted_rows[row_max], self.permuted_rows[index]
+        self.permuted_cols[index], self.permuted_cols[col_max] = self.permuted_cols[col_max], self.permuted_cols[index]
+
+        return rows, cols
+
+    def Pivot(self, index:int)->None:
+        """
+        Perfom the pivoting
+        """
+        rows = [i for i in range(self.size)]
+        cols = [i for i in range(self.size)]
+
+        submatrix = self.A_Decomposed[index::, index::].copy()
+
+        row_max, col_max = self.FindMaxRowAndCol(submatrix)
+        row_max += index
+        col_max += index
+
+        rows, cols = self.UpdatedPermutationVector(rows, cols, row_max, col_max, index)
+
+        perm_row = self.PermutationMatrix(rows)
+        perm_col = self.PermutationMatrix(cols, rows=False)
+
+        self.A_Decomposed = perm_row @ self.A_Decomposed @ perm_col
+
+    # -----------------
+    # - DECOMPOSITION -
+    # ---- METHODS ----
+    # -----------------
+    def Pivot_Decomposition(self)->None:
+        """
+        Decompose the matrix using pivoting LU decomposition
+        """
+        for index in range(self.size - 1):
+            self.Pivot(index)
+            
+            self.A_Decomposed[index+1::, index] /= self.A_Decomposed[index, index]
+            self.A_Decomposed[index+1::, index+1::] -= OUTER(self.A_Decomposed[index+1::, index], self.A_Decomposed[index, index+1::])
+
+        self.Fill_L()
+        self.Fill_U()
+
+        self.permuted_rows = self.PermutationMatrix(self.permuted_rows)
+        self.permuted_cols = self.PermutationMatrix(self.permuted_cols, rows=False)
+
     def LU_Decomposition(self)->None:
         """
         Decompose the matrix using LU decomposition
         """
-        if self.pivoting:
-            self.PivotMatrix()
-        
         self.RankOneUpdate()
         self.Fill_L()
         self.Fill_U()
@@ -148,6 +239,10 @@ class Matrix:
         self.Fill_D()
         self.U = self.L.T
 
+    # -----------------
+    # ---- CHEKING ----
+    # ---- METHODS ----
+    # -----------------
     def Check_Symmetry(self)->bool:
         """
         Check if the matrix is symmetric
@@ -160,14 +255,21 @@ class Matrix:
         """
         return np.all(np.linalg.eigvals(self.A) > 0)
 
+    # -----------------
+    # ---- RESULTS ----
+    # ---- METHODS ----
+    # -----------------
     def Decompose(self)->None:
         """
         Decompose the matrix using the specified decomposition
         """
         if (self.decomposition_type in ["LDU", "LLt", "LDLt"]) and (self.pivoting):
             raise Exception(f"Pivoting not defined for the '{self.decomposition_type}' decomposition. Please try again with 'LU' decomposition.")
+        
+        if self.pivoting:
+            self.Pivot_Decomposition()
 
-        if self.decomposition_type == "LU":
+        elif self.decomposition_type == "LU":
             self.LU_Decomposition()
 
         elif self.decomposition_type == "LDU":
@@ -195,11 +297,14 @@ class Matrix:
         """
         Find the inverse of the matrix using the decomposition
         """
-        if self.decomposition_type in ["LU", "LLt"]:
-            self.decomposd_inverse = INVERSE(self.L @ self.U)
+        if self.pivoting:
+            self.decomposd_inverse = self.permuted_rows.T @ INVERSE(self.U) @ INVERSE(self.L) @ self.permuted_cols.T
+
+        elif self.decomposition_type in ["LU", "LLt"]:
+            self.decomposd_inverse = INVERSE(self.U) @ INVERSE(self.L)
         
         elif self.decomposition_type in ["LDU", "LDLt"]:
-            self.decomposd_inverse = INVERSE(self.L @ self.D @ self.U) 
+            self.decomposd_inverse = INVERSE(self.U) @ INVERSE(self.D) @ INVERSE(self.L)
         
         else:
             raise Exception(f"The '{self.decomposition_type}' decomposition is not valid. Please choose one of the following: LU, LDU, LLt, LDLt")
@@ -216,6 +321,10 @@ class Matrix:
             print(f"Matrix L: \n{self.L}\n", file=f)
             print(f"Matrix U: \n{self.U}\n", file=f)
             print(f"Matrix D: \n{self.D}\n", file=f)
+
+            if self.pivoting:
+                print(f"Permuted Rows: \n{self.permuted_rows}\n", file=f)
+                print(f"Permuted Columns: \n{self.permuted_cols}\n", file=f)
 
             print(f"Inverse A: \n{INVERSE(self.A)}\n", file=f)
             print(f"Inverse L: \n{INVERSE(self.L)}\n", file=f)

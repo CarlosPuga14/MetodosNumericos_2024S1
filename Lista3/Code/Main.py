@@ -6,25 +6,33 @@ Created by Carlos Puga - 04/05/2024
 from Matrix import Matrix
 
 def Main()->None:
-    decomposiion = "LU"
+    decomposition = "LDLt"
+    pivoting = False
 
-    if decomposiion in ["LU", "LDU"]:
+    if decomposition == "LU" and pivoting:
+        myMatrix = Matrix([[1.0, 2.0, 8.0], [6.0, 4.0, 7.0], [5.0, 3.0, 9.0]], pivoting)
+
+    elif decomposition in ["LU", "LDU"]:
         myMatrix = Matrix([[1.0, 3.0, 5.0], [7.0, 9.0, 2.0], [4.0, 6.0, 8.0]])
     
-    elif decomposiion == "LLt":
+    elif decomposition == "LLt":
         myMatrix = Matrix([[23., 10., 9.], [10., 54., 8.], [9., 8., 49.]])
 
-    elif decomposiion == "LDLt":
+    elif decomposition == "LDLt":
         myMatrix = Matrix([[2., 10., 9.], [10., 18., 8.], [9., 8., 16.]])
 
     else:
         raise Exception("Invalid matrix type")
     
-    myMatrix.SetDecompositionMethod(decomposiion)
+    myMatrix.SetDecompositionMethod(decomposition)
+    
+    if pivoting:
+        decomposition += "_Pivoting"
+
     myMatrix.Decompose()
     myMatrix.FindInverse()
 
-    output_file = f"{decomposiion}.txt"
+    output_file = f"{decomposition}.txt"
     myMatrix.Print(output_file)
 
 if __name__ == "__main__":
