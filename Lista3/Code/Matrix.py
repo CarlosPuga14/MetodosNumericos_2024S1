@@ -128,12 +128,25 @@ class Matrix:
         """
         max_number = submatrix[0, 0]
 
-        for i, row in enumerate(submatrix):
-            for j, number in enumerate(row):
+        if self.decomposition_type == "LU":
+            for i, row in enumerate(submatrix):
+                for j, number in enumerate(row):
+                    if abs(number) > max_number:
+                            max_number = number
+                            perm_row_index = i
+                            perm_col_index = j
+
+        elif self.decomposition_type == "LDLt":
+            for i in range(len(submatrix)):
+                number = submatrix[i, i]
+
                 if abs(number) > max_number:
-                        max_number = number
-                        perm_row_index = i
-                        perm_col_index = j
+                    max_number = number
+                    perm_row_index = i
+                    perm_col_index = i
+
+        else:
+            raise Exception(f"Pivoting not defined for the '{self.decomposition_type}' decomposition. Please try again with 'LU' decomposition.")
 
         return perm_row_index, perm_col_index
 
@@ -191,7 +204,7 @@ class Matrix:
     # -----------------
     def Pivot_Decomposition(self)->None:
         """
-        Decompose the matrix using pivoting LU decomposition
+        Decompose the matrix using pivoting LU or LDLt decomposition
         """
         for index in range(self.size - 1):
             self.Pivot(index)
@@ -199,8 +212,14 @@ class Matrix:
             self.A_Decomposed[index+1::, index] /= self.A_Decomposed[index, index]
             self.A_Decomposed[index+1::, index+1::] -= OUTER(self.A_Decomposed[index+1::, index], self.A_Decomposed[index, index+1::])
 
-        self.Fill_L()
-        self.Fill_U()
+        if self.decomposition_type == "LU":
+            self.Fill_L()
+            self.Fill_U()
+
+        elif self.decomposition_type == "LDLt":
+            self.Fill_L()
+            self.Fill_D()
+            self.U = self.L.T
 
         self.permuted_rows = self.PermutationMatrix(self.permuted_rows)
         self.permuted_cols = self.PermutationMatrix(self.permuted_cols, rows=False)
@@ -263,7 +282,7 @@ class Matrix:
         """
         Decompose the matrix using the specified decomposition
         """
-        if (self.decomposition_type in ["LDU", "LLt", "LDLt"]) and (self.pivoting):
+        if (self.decomposition_type in ["LDU", "LLt"]) and (self.pivoting):
             raise Exception(f"Pivoting not defined for the '{self.decomposition_type}' decomposition. Please try again with 'LU' decomposition.")
         
         if self.pivoting:
@@ -288,8 +307,7 @@ class Matrix:
             self.LDLt_Decomposition()
 
         else:
-            text = f"The '{self.decomposition_type}' decomposition is not valid. Please choose one of the following: "
-            text += "LU, LDU, LLt, LDLt"
+            text = f"The '{self.decomposition_type}' decomposition is not valid. Please choose one of the following: LU, LDU, LLt, LDLt "
 
             raise Exception(text)
         
@@ -298,7 +316,7 @@ class Matrix:
         Find the inverse of the matrix using the decomposition
         """
         if self.pivoting:
-            self.decomposd_inverse = self.permuted_rows.T @ INVERSE(self.U) @ INVERSE(self.L) @ self.permuted_cols.T
+            self.decomposd_inverse = self.permuted_rows.T @ INVERSE(self.U) @ INVERSE(self.D) @ INVERSE(self.L) @ self.permuted_cols.T
 
         elif self.decomposition_type in ["LU", "LLt"]:
             self.decomposd_inverse = INVERSE(self.U) @ INVERSE(self.L)
