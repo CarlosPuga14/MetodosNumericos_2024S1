@@ -9,10 +9,10 @@ def Main()->None:
     decomposition = "LU"
     pivoting = True
 
-    if decomposition == "LU" and pivoting:
+    if decomposition == "LU":
         myMatrix = Matrix([[1.0, 2.0, 8.0], [6.0, 4.0, 7.0], [5.0, 3.0, 9.0]], pivoting)
 
-    elif decomposition in ["LU", "LDU"]:
+    elif decomposition == "LDU":
         myMatrix = Matrix([[1.0, 3.0, 5.0], [7.0, 9.0, 2.0], [4.0, 6.0, 8.0]])
     
     elif decomposition == "LLt":

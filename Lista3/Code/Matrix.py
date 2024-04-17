@@ -145,9 +145,6 @@ class Matrix:
                     perm_row_index = i
                     perm_col_index = i
 
-        else:
-            raise Exception(f"Pivoting not defined for the '{self.decomposition_type}' decomposition. Please try again with 'LU' decomposition.")
-
         return perm_row_index, perm_col_index
 
 
@@ -212,12 +209,11 @@ class Matrix:
             self.A_Decomposed[index+1::, index] /= self.A_Decomposed[index, index]
             self.A_Decomposed[index+1::, index+1::] -= OUTER(self.A_Decomposed[index+1::, index], self.A_Decomposed[index, index+1::])
 
+        self.Fill_L()
         if self.decomposition_type == "LU":
-            self.Fill_L()
             self.Fill_U()
 
         elif self.decomposition_type == "LDLt":
-            self.Fill_L()
             self.Fill_D()
             self.U = self.L.T
 
