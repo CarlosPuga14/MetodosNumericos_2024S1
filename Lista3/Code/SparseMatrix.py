@@ -11,16 +11,25 @@ class SparseMatrix:
     """
     Sparse matrix class. This class is used to store a matrix in a sparse format. 
     """
-    data: list = field(init=False, default_factory=list)
-    cols: list = field(init=False, default_factory=list)
-    ptr: list = field(init=False, default_factory=list)
+    data: list = field(init=False, default_factory=list) # List of non-zero elements
+    cols: list = field(init=False, default_factory=list) # List of columns
+    ptr: list = field(init=False, default_factory=list) # List of cumulative sums of non-zero elements
+    sparsity: float = field(init=False, default=0.0) # Sparsity of the matrix
+    density: float = field(init=False, default=0.0) # Density of the matrix
+    size: int = field(init=False, default=0) # Size of the full matrix
+
+    data_memory: int = field(init=False, default=0) # Memory usage of the data list
+    cols_memory: int = field(init=False, default=0)
+    ptr_memory: int = field(init=False, default=0)
+    total_memory: int = field(init=False, default=0)
 
     def ParseFullMatrix(self, matrix: np.array)->None:
         """
         Parse a full matrix into a sparse matrix. 
         """
-        self.ptr.append(0)
+        self.size = len(matrix)
 
+        self.ptr.append(0)
         for row in matrix:
             for j, item in enumerate(row):
                 if item != 0:
@@ -31,7 +40,7 @@ class SparseMatrix:
 
     def FindAij(self, i:int, j:int)->float:
         """
-        Find the Aij term in the sparse matrix
+        Find the Aij term in the sparse matrix notation
         """
         for k in range(self.ptr[i], self.ptr[i+1]):
             if self.cols[k] == j:
@@ -52,3 +61,22 @@ class SparseMatrix:
             prod[i] = sum
 
         return prod
+    
+    def EvaluateSparsity(self)->None:
+        """
+        Evaluate the sparsity and density of the matrix
+        """
+        self.sparsity = 1 - len(self.data) / (self.size * self.size)
+        self.density = 1 - self.sparsity
+
+    def CalcMemoryUsage(self)->None:
+        """
+        Calculate the memory usage of the sparse matrix
+        """
+        memory_usage = lambda lst:  sum([4 if isinstance(item, int) else 8 for item in lst])
+        
+        self.data_memory = memory_usage(self.data)
+        self.cols_memory = memory_usage(self.cols)
+        self.ptr_memory = memory_usage(self.ptr)
+
+        self.total_memory = self.data_memory + self.cols_memory + self.ptr_memory
