@@ -76,7 +76,7 @@
 % defining the height of table cells
 \renewcommand{\arraystretch}{1.5}
 
-% defining the gradient, divergence and curl operators
+% defining the gradient, divergence, and curl operators
 \newcommand{\grad}[1]{\nabla #1}
 \renewcommand{\div}[1]{\nabla \cdot #1}
 \newcommand{\curl}[1]{\nabla \times #1}
@@ -152,7 +152,7 @@
 \newpage
 \tableofcontents 
 
-% from here on, the page number is shown
+% From here on, the page number is shown
 % Chapter first page settings
 \newpage
 \fancypagestyle{plain}{
@@ -170,11 +170,10 @@
 
 % ------- CHAPTERS -------
 \pagestyle{headings}
-% \input{Chapters/Introducao.tex}
-% \input{Chapters/ProblemStatement.tex}
-% \input{Chapters/CodeImplementation.tex}
-% \input{Chapters/Results.tex}
-% \input{Chapters/Conclusao.tex}
+\input{Chapters/Introduction.tex}
+\input{Chapters/FullMatrix.tex}
+\input{Chapters/SparseMatrix.tex}
+\input{Chapters/Conclusions.tex}
 
 % ------- BIBLIOGRAPHY -------
 \addcontentsline{toc}{section}{References}
