@@ -12,7 +12,7 @@ in which the matrix $A$ is the coefficient matrix, and the vector $b$ is the equ
 
 The task of inverting a matrix, however, is computationally expensive, and as the problem grows in size, the computational cost increases exponentially. In this context, the decomposition method arises to ease the computational burden of finding the inverse of a matrix. 
 
-This is justified by the fact that inverting the decomposed form $A=LU$ is computationally cheaper than inverting the original matrix $A$. The final solution is then obtained by solving two cheaper systems as shown in Eq. \eqref{eq:decomposed_solution}
+This is justified by the fact that inverting the decomposed form $A=LU$ is computationally cheaper than inverting the original matrix $A$. The final solution is then obtained by solving two systems as shown in Eq. \eqref{eq:decomposed_solution}
 \begin{equation}
     \begin{cases}
         Ax = LUx = b, \\
@@ -23,9 +23,9 @@ This is justified by the fact that inverting the decomposed form $A=LU$ is compu
 \end{equation}
 LU, LDU, LLt (or Cholesky), and LDLt decompositions are examples of this methodology, to cite a few. 
 
-This work will focus on the LU and LDLt methods, but the main idea behind all of them is to decompose the original matrix $A$ into two triangular matrices, $L$ (lower triangular), and $U$ (upper triangular). The $D$ stands for a diagonal matrix and might appear in methods such as LDU and LDLt. Finally, for the Cholesky and LDLt decompositions, the upper matrix is the transpose of the lower matrix, $U = L^t$, which is achieved due to the symmetry of the problem.
+This work will focus on the LU and LDLt methods, but the main idea behind all of them is to decompose the original matrix $A$ into two triangular matrices, $L$ (lower triangular), and $U$ (upper triangular). The $D$ stands for a diagonal matrix and might appear in the LDU and LDLt methods. Finally, for the Cholesky and LDLt decompositions, the upper matrix is the transpose of the lower matrix, $U = L^t$, which is achieved due to the symmetry of the problem.
 
-To decompose a matrix, in the following methodology, the rank one update is employed. The rank one update is a method to update a matrix by adding the outer product between the vectors of the line and column of a given equation to the original submatrix formed by all lines and columns below the assessed equation. A simple example follows 
+To decompose a matrix, in the following methodology, the rank one update is employed. The rank one update is a method to update a matrix by adding the outer product between the vectors of the line and column of a given equation to the original submatrix formed by all lines and columns below the assessed equation. Although it may vary from method to method, a simple example of rank one update in LU decomposition follows 
 \begin{equation*}
     A_{step1} =
     \begin{bmatrix}
@@ -35,9 +35,9 @@ To decompose a matrix, in the following methodology, the rank one update is empl
     \end{bmatrix},
 \end{equation*}
 
-The first equation is $1x_1 + 2x_2 + 3x_3 = b_1$. To update the matrix, the line and column are divided by the pivot (the term in the diagonal in this case $1$), and the outer product between the vectors is calculated
+In the matrix $A_{step1}$, $1x_1 + 2x_2 + 3x_3 = b_1$ is the first equation. To update the matrix, the line and column are divided by the pivot (the term in the diagonal of the equation's line, in this case, $1$), and the outer product between the vectors is calculated
 \begin{equation*}
-    cols \otimes rows = 
+    \{4, 7\}^T \otimes \{2, 3\}  = 
     \begin{bmatrix}
         8 & 12 \\
         14 & 21
