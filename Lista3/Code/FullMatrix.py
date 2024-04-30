@@ -152,7 +152,7 @@ class FullMatrix:
                     perm_row_index = i
                     perm_col_index = i
 
-        elif self.decomposition_type == "LU" and not self.diagonal:
+        elif self.decomposition_type == "LU":
             for i, row in enumerate(submatrix):
                 for j, number in enumerate(row):
                     if abs(number) > abs(max_number):
@@ -310,9 +310,15 @@ class FullMatrix:
         """
         if self.CheckSingularity():
             raise Exception("Singular matrix")
+        
+        if not self.Check_Symmetry() and (self.decomposition_type in ["LLt", "LDLt"]):
+            raise Exception("Matrix not symmetric.")
+
+        if not self.Check_PositiveDefinite() and (self.decomposition_type == "LLt"):
+            raise Exception("Matrix not positive definite.")
 
         if (self.decomposition_type in ["LDU", "LLt"]) and (self.pivoting):
-            raise Exception(f"Pivoting not defined for the '{self.decomposition_type}' decomposition. Please try again with 'LU' decomposition.")
+            raise Exception(f"Pivoting not defined for the '{self.decomposition_type}' decomposition. Please try again with 'LU' or 'LDLt' decomposition.")
         
         if self.pivoting:
             self.Pivot_Decomposition()
@@ -323,21 +329,14 @@ class FullMatrix:
         elif self.decomposition_type == "LDU":
             self.LDU_Decomposition()
 
-        elif self.decomposition_type == "LLt":
-            if (not self.Check_Symmetry()) and (not self.Check_PositiveDefinite()):
-                raise Exception("The matrix is not symmetric positive definite. Please choose another decomposition type.")
-            
+        elif self.decomposition_type == "LLt":    
             self.LLt_Decomposition()
 
         elif self.decomposition_type == "LDLt":
-            if not self.Check_Symmetry():
-                raise Exception("The matrix is not symmetric positive definite. Please choose another decomposition type.")
-            
             self.LDLt_Decomposition()
 
         else:
             text = f"The '{self.decomposition_type}' decomposition is not valid. Please choose one of the following: LU, LDU, LLt, LDLt "
-
             raise Exception(text)
         
     def FindInverse(self)->None:
