@@ -177,7 +177,7 @@ def FindInverse(self)->None:
         raise Exception(f"The '{self.decomposition_type}' decomposition is not valid.")
 \end{lstlisting}
 
-In the case of pivoting, the inverse is obtained by $pR^T.U^{-1}.D^{-1}.L^{-1}.pC^T$. However, if no pivoting has been done, the inverse is simply $U^{-1}.D^{-1}.L^{-1}$.
+In the case of pivoting, the inverse is obtained by $pR^T.U^{-1}.D^{-1}.L^{-1}.pC^T$. However, if no pivoting has been done, the inverse is simply $U^{-1}.D^{-1}.L^{-1}$. If the decomposition type is not valid, an exception is raised.
 
 \subsection{Matrix LU Decomposition} \label{sec:lu}
 
