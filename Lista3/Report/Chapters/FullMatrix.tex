@@ -177,8 +177,120 @@ def FindInverse(self)->None:
         raise Exception(f"The '{self.decomposition_type}' decomposition is not valid.")
 \end{lstlisting}
 
-In the case of pivoting, the inverse is obtained by $pR^T.U^{-1}.D^{-1}.L^{-1}.pC^T$. However, if no pivoting has been done, the inverse is simply $U^{-1}.D^{-1}.L^{-1}$. If the decomposition type is not valid, an exception is raised.
+Equations \eqref{eq:inverse_pivot} and \eqref{eq:inverse} display the inverse of the matrix with and without the need for pivoting
+\begin{equation}
+    \label{eq:inverse_pivot}
+    pR^T.U^{-1}.D^{-1}.L^{-1}.pC^T,    
+\end{equation}
+\begin{equation}
+    \label{eq:inverse}
+    U^{-1}.D^{-1}.L^{-1}
+\end{equation}
+where $pR$ and $pC$ are the permutation matrices for rows and columns, respectively, and the $.$ operator indicates the matrix multiplication.
+
+The following sections show the results for decompositions LU and LDLt and the comparison between their inverse and the original matrix. The evaluation of the determinant shows that the matrix is not singular, i.e., the determinant is different from zero. Being so, the decomposition can be done. However, due to a zero on the diagonal, pivoting is necessary to avoid division by zero. Matrix A and its inverse are given in figues \ref{fig:matrix_A} and \ref{fig:matrix_A_inverse}.
+\begin{figure}[H]
+    \centering 
+    \includegraphics[width=1\textwidth]{MatrixA.pdf}
+    \caption{Matrix A.}
+    \label{fig:matrix_A}
+\end{figure}
+\begin{figure}[H]
+    \centering 
+    \includegraphics[width=1\textwidth]{InverseA.pdf}
+    \caption{Matrix A inverse.}
+    \label{fig:matrix_A_inverse}
+\end{figure}
+
+Appendix \ref{sec:mainFunction} shows the code for the main function, used throughout this report.
 
 \subsection{Matrix LU Decomposition} \label{sec:lu}
+LU decomposition follows the methods aforementioned. Results for the decomposition can be read in the .txt written by the Python algorithm. The main results for L, U and the error between the original matrix inverse and the decomposed matrix inverse are shown in figures \ref{fig:lu_L} - \ref{fig:lu_inverse_error}. 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{L_lu.pdf}
+    \caption{Matrix L (LU decomposition).}
+    \label{fig:lu_L}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{U_lu.pdf}
+    \caption{Matrix U (LU decomposition).}
+    \label{fig:lu_inverse_error}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{Error_lu.pdf}
+    \caption{Error between the matrix inverses (LU decomposition).}
+    \label{fig:lu_inverse_error}
+\end{figure}
+
+Firstly, the pivot could be found in any position of the matrix. However, the error between the inverses yields relatively high values, as depicted in Fig. \ref{fig:lu_inverse_error}. Seeking to reduce the error, LU decomposition is performed again, but now only pivoting diagonal elements is allowed. Figures \ref{fig:lu_L_diag} - \ref{fig:lu_inverse_error_diag} show the results for the decomposition.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{L_lu_diag.pdf}
+    \caption{Matrix L (LU diagonal pivoting decomposition).}
+    \label{fig:lu_L_diag}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{U_lu_diag.pdf}
+    \caption{Matrix U (LU diagonal pivoting decomposition).}
+    \label{fig:lu_inverse_error_diag}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=.5\textwidth]{Error_lu_diag.pdf}
+    \caption{Error between the matrix inverses (LU diagonal pivoting decomposition).}
+    \label{fig:lu_inverse_error_diag}
+\end{figure}
+
+A quick comparison between both decompositions shows that matrices L and U pivoting any element have residuals that do not appear when only diagonal elements are pivoted. Results for pivoting only the diagonal elements seem to be more accurate for this matrix, as the error between the inverses is smaller. Notice that the error matrice is processed by Mathematica using the Chop filter, which sets to zero any value below a certain threshold.
+
+Appendix \ref{sec:PermutationMatrices} shows the permutation matrices for both LU decompositions. 
 
 \subsection{Matrix LDLt Decomposition} \label{sec:ldlt}
+Results for matrices L, D and U are depicted in figures \ref{fig:ldlt_L} - \ref{fig:ldlt_U}. T
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{L_ldlt.pdf}
+    \caption{Matrix L (LDLt decomposition).}
+    \label{fig:ldlt_L}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{D_ldlt.pdf}
+    \caption{Matrix D (LDLt decomposition).}
+    \label{fig:ldlt_D}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{U_ldlt.pdf}
+    \caption{Matrix U (LDLt decomposition).}
+    \label{fig:ldlt_U}
+\end{figure}
+
+The error between the original matrix inverse and the decomposed matrix inverse is shown in Fig. \ref{fig:ldlt_inverse_error}.Appendix \ref{sec:PermutationMatrices} shows the permutation matrices for the LDLt decomposition.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=.5\textwidth]{Error_ldlt.pdf}
+    \caption{Error between the matrix inverses (LDLt decomposition).}
+    \label{fig:ldlt_inverse_error}
+\end{figure}
+
+As a way to compare the methods, Table \ref{tab:error} shows the norm of the error between the inverse matrices in each decomposition. The norm of the error is calculated as the sum of the absolute values of the difference between the inverse matrices. 
+\begin{table}[H]
+    \centering 
+    \caption{Error between the inverse matrices.}
+    \begin{tabular}{cc}
+        \hline
+        Decomposition & Error \\
+        \hline
+        LU & 2.77 \\ 
+        LU (Diagonal Pivoting) & 5.72e-13 \\
+        LDLt & 6.30e-13 \\ \hline
+    \end{tabular}
+    \label{tab:error}
+\end{table}
+
+One understands that the error is smaller for LU decomposition with diagonal pivoting, followed by LDLt decomposition. However, since the values are near to machine precision, numerical errors might influence the results.
