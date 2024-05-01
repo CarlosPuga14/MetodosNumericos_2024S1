@@ -51,13 +51,22 @@ def Main()->None:
 
     sparse_matrix.CalcMemoryUsage()
 
+    print(f"{full_matrix.A_Memory = }")
+    print(f"{sparse_matrix.data_memory = }")
+    print(f"{sparse_matrix.cols_memory = }")
+    print(f"{sparse_matrix.ptr_memory = }")
+    print(f"{sparse_matrix.total_memory = }")
+
     a = sparse_matrix.Multiply(vec)
+    print(f"{a = }")
 
     b = np.dot(full_matrix.A, vec)
+    print(f"{b = }")
 
     print(np.allclose(a, b))
 
     sparse_matrix.EvaluateSparsity()
+    print(f"{sparse_matrix.sparsity = :.2%}")
 
 if __name__ == "__main__":
     Main()
