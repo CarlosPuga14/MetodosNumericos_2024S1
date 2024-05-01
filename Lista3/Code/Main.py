@@ -36,39 +36,28 @@ def Main()->None:
     ]
     
     full_matrix = FullMatrix(matrix, pivoting, diagonal, decomposition)
+
+    full_matrix.PrintMathematica(True)
  
     full_matrix.Decompose()
     full_matrix.FindInverse()
     full_matrix.Print(output_file)
 
     full_matrix.CalcMemoryUsage()
-    print(f"{full_matrix.A_Memory = } bytes")
 
+    vec = np.ones_like(full_matrix.A[0])
     sparse_matrix = SparseMatrix()
     sparse_matrix.ParseFullMatrix(full_matrix.A)
 
-    # print(f"{sparse_matrix.cols = }")
-    # print(f"{sparse_matrix.data = }")
-    # print(f"{sparse_matrix.ptr = }")
-
     sparse_matrix.CalcMemoryUsage()
 
-    print(f"{sparse_matrix.data_memory = } bytes")
-    print(f"{sparse_matrix.cols_memory = } bytes")
-    print(f"{sparse_matrix.ptr_memory = } bytes")
-    print(f"{sparse_matrix.total_memory = } bytes")
+    a = sparse_matrix.Multiply(vec)
 
-    # a = sparse_matrix.Multiply(vec)
-    # print(f"{a = }")
+    b = np.dot(full_matrix.A, vec)
 
-    # b = np.dot(full_matrix.A, vec)
-    # print(f"{b = }")
+    print(np.allclose(a, b))
 
-    # print(np.allclose(a, b))
-
-    # sparse_matrix.EvaluateSparsity()
-    # print(f"Sparsity: {sparse_matrix.sparsity:.3%}")
-    # print(f"Density: {sparse_matrix.density:.3%}")
+    sparse_matrix.EvaluateSparsity()
 
 if __name__ == "__main__":
     Main()

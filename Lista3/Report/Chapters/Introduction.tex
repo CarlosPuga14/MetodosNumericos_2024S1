@@ -25,33 +25,7 @@ LU, LDU, LLt (or Cholesky), and LDLt decompositions are examples of this methodo
 
 This work will focus on the LU and LDLt methods, but the main idea behind all of them is to decompose the original matrix $A$ into two triangular matrices, $L$ (lower triangular), and $U$ (upper triangular). The $D$ stands for a diagonal matrix and might appear in the LDU and LDLt methods. Finally, for the Cholesky and LDLt decompositions, the upper matrix is the transpose of the lower matrix, $U = L^t$, which is achieved due to the symmetry of the problem.
 
-To decompose a matrix, in the following methodology, the rank one update is employed. The rank one update is a method to update a matrix by adding the outer product between the vectors of the line and column of a given equation to the original submatrix formed by all lines and columns below the assessed equation. Although it may vary from method to method, a simple example of rank one update in LU decomposition follows 
-\begin{equation*}
-    A_{step1} =
-    \begin{bmatrix}
-        1 & 2 & 3 \\
-        4 & 5 & 6 \\
-        7 & 8 & 9
-    \end{bmatrix},
-\end{equation*}
-
-In the matrix $A_{step1}$, $1x_1 + 2x_2 + 3x_3 = b_1$ is the first equation. To update the matrix, the line and column are divided by the pivot (the term in the diagonal of the equation's line, in this case, $1$), and the outer product between the vectors is calculated
-\begin{equation*}
-    \{4, 7\}^T \otimes \{2, 3\}  = 
-    \begin{bmatrix}
-        8 & 12 \\
-        14 & 21
-    \end{bmatrix},
-\end{equation*}
-and the result is subtracted from the original matrix
-\begin{equation*}
-    A_{step2} = 
-    \begin{bmatrix}
-        1 & 2 & 3 \\
-        4 & -3 & -6 \\
-        7 & -6 & -12
-    \end{bmatrix}.
-\end{equation*}
+To decompose a matrix, in this work, the rank one update is employed. The rank one update is a method to update a matrix by adding the outer product between the vectors of the line and column of a given equation to the original submatrix formed by all lines and columns below the assessed equation. 
 
 This procedure is repeated until the last equation. Once it is over, the resulting matrix is the decomposed form of the original one. The matrix $L$ is the lower triangle of the decomposed matrix (not considering the diagonal) and the matrix $U$ is the upper triangle of the decomposed matrix (including the diagonal). For the cases in which the diagonal matrix is required, the diagonal of the decomposed matrix is the matrix $D$ and $U$ does not include the diagonal.
 
