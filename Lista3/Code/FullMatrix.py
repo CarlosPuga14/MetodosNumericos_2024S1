@@ -27,6 +27,7 @@ class FullMatrix:
     Class to represent a matrix and its decomposition
     """
     tolerance: ClassVar[float] = 1e-11 # Tolerance for the decomposition
+    MathematicaFormat: ClassVar[bool] = False
 
     A: np.array # Matrix
     pivoting: bool = False # Pivoting flag
@@ -76,6 +77,13 @@ class FullMatrix:
             raise Exception(f"The '{decomposition_type}' decomposition is not valid. Please choose one of the following: LU, LDU, LLt, LDLt")
         
         self.decomposition_type = decomposition_type
+
+    @classmethod
+    def PrintMathematica(self, option: bool)->None:
+        """
+        Set the Mathematica format
+        """
+        FullMatrix.MathematicaFormat = option
     
     # -----------------
     # ---- GENERAL ----
@@ -371,24 +379,84 @@ class FullMatrix:
         """
         Print the matrix and its decomposition
         """
+        def printMatrix(matrix):
+            print("{", file=f)
+            for i, row in enumerate(matrix):
+                print("{", end="", file=f)
+
+                for j, item in enumerate(row):
+                    end = "" if j == self.size-1 else ","
+                    print(f"{item:.2e} ", end=end, file=f)
+                
+                text = "}" if i == self.size-1 else "},"
+                print(text, file=f)
+                print()
+            print("}", file=f)
+    
+        np.set_printoptions(suppress=True, precision=2)
         with open(file, "w") as f:
             print(f"********** {self.decomposition_type} Decomposition **********\n", file=f)
-            print(f"Matrix A: \n{self.A}\n", file=f)
-            print(f"Matrix A Decomposed: \n{self.A_Decomposed}\n", file=f)
 
-            print(f"Matrix L: \n{self.L}\n", file=f)
-            print(f"Matrix U: \n{self.U}\n", file=f)
-            print(f"Matrix D: \n{self.D}\n", file=f)
+            if self.MathematicaFormat:
+                print("Matrix A: ", file=f)
+                printMatrix(self.A)
 
-            if self.pivoting:
-                print(f"Permuted Rows: \n{self.permuted_rows}\n", file=f)
-                print(f"Permuted Columns: \n{self.permuted_cols}\n", file=f)
+                print("\nMatrix A Decomposed: ", file=f)
+                printMatrix(self.A_Decomposed)
 
-            print(f"Inverse of A: \n{(self.inverseA)}\n", file=f)
-            print(f"Inverse of L: \n{INVERSE(self.L)}\n", file=f)
-            print(f"Inverse of U: \n{INVERSE(self.U)}\n", file=f)
-            print(f"Inverse of D: \n{INVERSE(self.D)}\n", file=f)
-            print(f"Inverse of A Decomposed: \n{self.decomposed_inverse}\n", file=f)
+                print("\nMatrix L: ", file=f)
+                printMatrix(self.L)
+
+                print("\nMatrix U: ", file=f)
+                printMatrix(self.U)
+
+                print("\nMatrix D: ", file=f)
+                printMatrix(self.D)
+
+                if self.pivoting:
+                    print("\nPermuted Rows: ", file=f)
+                    printMatrix(self.permuted_rows)
+
+                    print("\nPermuted Columns: ", file=f)
+                    printMatrix(self.permuted_cols)
+
+                print("\nInverse of A: ", file=f)
+                printMatrix(self.inverseA)
+
+                print("\nInverse of L: ", file=f)
+                printMatrix(INVERSE(self.L))
+
+                print("\nInverse of U: ", file=f)
+                printMatrix(INVERSE(self.U))
+
+                print("\nInverse of D: ", file=f)
+                printMatrix(INVERSE(self.D))
+
+                print("\nInverse of A Decomposed: ", file=f)
+                printMatrix(self.decomposed_inverse)
+
+                print("\nError: ", file=f)
+                printMatrix(abs(self.inverseA - self.decomposed_inverse))
+
+            else:
+                print(f"Matrix A: \n{self.A}\n", file=f)
+                print(f"Matrix A Decomposed: \n{self.A_Decomposed}\n", file=f)
+
+                print(f"Matrix L: \n{self.L}\n", file=f)
+                print(f"Matrix U: \n{self.U}\n", file=f)
+                print(f"Matrix D: \n{self.D}\n", file=f)
+
+                if self.pivoting:
+                    print(f"Permuted Rows: \n{self.permuted_rows}\n", file=f)
+                    print(f"Permuted Columns: \n{self.permuted_cols}\n", file=f)
+
+                print(f"Inverse of A: \n{(self.inverseA)}\n", file=f)
+
+
+                print(f"Inverse of L: \n{INVERSE(self.L)}\n", file=f)
+                print(f"Inverse of U: \n{INVERSE(self.U)}\n", file=f)
+                print(f"Inverse of D: \n{INVERSE(self.D)}\n", file=f)
+                print(f"Inverse of A Decomposed: \n{self.decomposed_inverse}\n", file=f)
 
             print(f"Determinant of A: {self.detA:.2e}", file=f)
 
@@ -398,3 +466,5 @@ class FullMatrix:
                 print(f"Is A == Decomposition? {np.allclose(self.A, self.L @ self.D @ self.U)}", file=f)
 
             print(f"Is invA == invDecomposition? {np.allclose(self.inverseA, self.decomposed_inverse)}", file=f)
+
+            print(f"Total error: {np.linalg.norm(self.inverseA - self.decomposed_inverse):.2e}", file=f)
