@@ -1,0 +1,34 @@
+\section{Rotacional do Gradiente de $f(x,y,z)$} \label{sec:ex1}
+Seja $f(x,y,z)$ uma fun\c{c}\~ao escalar. O gradiente de $f$ \'e dado pela Eq. \eqref{eq:gradf}
+\begin{equation}
+    \label{eq:gradf}
+    \grad{f} = \left( \frac{\partial f}{\partial x}, \frac{\partial f}{\partial y}, \frac{\partial f}{\partial z} \right).
+\end{equation}
+
+A partir de $\grad{f}$, pode-se calcular o rotacional de $\grad{f}$, dado pela Eq. \eqref{eq:rotgradf}
+\begin{equation}
+    \label{eq:rotgradf}
+    \curl{(\grad{f})} = 
+    \begin{matrix}
+        \begin{vmatrix}
+            \hat{i} & \hat{j} & \hat{k} \\
+            \frac{\partial}{\partial x} & \frac{\partial}{\partial y} & \frac{\partial}{\partial z} \\
+            \frac{\partial f}{\partial x} & \frac{\partial f}{\partial y} & \frac{\partial f}{\partial z}
+        \end{vmatrix}
+    \end{matrix},        
+\end{equation}
+em que $\hat{i}$, $\hat{j}$ e $\hat{k}$ s\~ao os vetores unit\'arios nas dire\c{c}\~oes $x$, $y$ e $z$, respectivamente.
+
+Calculando o rotacional de $\grad{f}$, tem-se que
+\begin{equation*}
+    \left( \frac{\partial^2 f}{\partial y \partial z} - \frac{\partial^2 f}{\partial z \partial y} \right) \hat{i} + 
+        \left( \frac{\partial^2 f}{\partial z \partial x} - \frac{\partial^2 f}{\partial x \partial z} \right) \hat{j} + 
+        \left( \frac{\partial^2 f}{\partial x \partial y} - \frac{\partial^2 f}{\partial y \partial x} \right) \hat{k},
+\end{equation*}
+como as derivadas parciais s\~ao comutativas (Teorema de Clairaut), tem-se que
+\begin{equation*}
+    \curl{(\grad{f})} = \vec{0}.
+\end{equation*}
+
+
+

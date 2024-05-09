@@ -1,0 +1,6 @@
+\section{Conclusions} \label{sec:conclusions}
+This work implemented two classes: FullMatrix and SparseMatrix. FullMatrix has LU and LDLt decomposition methods for solving linear systems, which after analyses it was observed that LU decomposition with diagonal pivoting has resulted in the smallest errors in terms of inverse recovery, followed by LDLt decomposition. 
+
+When it comes to sparse matrices, it is observed that the decision whether to use it or not is based on a series of factors, such as the sparsity of the matrix, the number of non-zero elements, and the size of the matrix. Not always sparse matrices result in less memory usage. 
+
+Finally, the process of operating a sparse matrix is not trivial, and the algorithm must be adapted to this structure. Otherwise, several errors may arise during the code's execution and more necessary than the necessary might be allocated to finish the process. 
