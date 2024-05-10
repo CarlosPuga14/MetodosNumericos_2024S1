@@ -110,6 +110,36 @@ class SparseMatrix:
 
         return prod
     
+    def InnerProductLowerRows(self, vector:np.array, row:int)->np.array:
+        """
+        Multiply the lower part of the sparse matrix by a vector
+        """
+        nelem = self.ptr[row+1] - self.ptr[row]
+        ntotal = self.ptr[row]
+
+        sum = 0
+        for j in range(ntotal, ntotal + nelem):
+            if self.cols[j] >= row: continue
+
+            sum += self.data[j] * vector[self.cols[j]]
+
+        return sum
+    
+    def InnerProductUpperRows(self, vector:np.array, row:int)->np.array:
+        """
+        Multiply the upper part of the sparse matrix by a vector
+        """
+        nelem = self.ptr[row+1] - self.ptr[row]
+        ntotal = self.ptr[row]
+
+        sum = 0
+        for j in range(ntotal, ntotal + nelem):
+            if self.cols[j] <= row: continue
+
+            sum += self.data[j] * vector[self.cols[j]]
+
+        return sum
+    
     def EvaluateSparsity(self)->None:
         """
         Evaluate the sparsity and density of the matrix
