@@ -44,6 +44,7 @@ class SparseMatrix:
         """
         row = 0
         col = 0
+        end_row = False
         self.ptr.append(0)
 
         with open(file, "r") as f:
@@ -51,7 +52,7 @@ class SparseMatrix:
 
             for line in lines:
                 line = line.strip("= { , \n")
-                end_row = False
+                
 
                 for element in line.split(","):
                     if "}" in element:
@@ -71,7 +72,9 @@ class SparseMatrix:
                         self.ptr.append(len(self.data))
                         row += 1
                         col = 0
-
+                        end_row = False
+            
+        self.size = row
 
     def FindAij(self, i:int, j:int)->float:
         """
@@ -83,6 +86,16 @@ class SparseMatrix:
         
         return 0.0
     
+    def GetDiagonal(self)->np.array:
+        """
+        Get the diagonal of the matrix
+        """
+        diag = np.zeros(self.size)
+        for i in range(self.size):
+            diag[i] = self.FindAij(i, i)
+
+        return diag
+
     def Multiply(self, vector:np.array)->np.array:
         """
         Multiply the sparse matrix by a vector
