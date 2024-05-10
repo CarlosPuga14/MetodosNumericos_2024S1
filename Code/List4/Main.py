@@ -82,9 +82,71 @@ def SSOR(matrix:SparseMatrix, sol:np.array, res:np.array, omega:float=1.0)->np.a
 
     return dx2, res2
 
+def ConjugateGradient(matrix:SparseMatrix, rhs:np.array, solini:np.array, niter:int)->tuple[float, list[float]]:
+    """
+    Evaluates the Conjugate Gradient method for a given matrix, right-hand side and initial solution
+    """
+    x_k = solini.copy()
+    res = rhs - matrix.Multiply(x_k)
+    p_k = res.copy()
+
+    res_k = res.copy()
+
+    resnorm = [np.linalg.norm(res_k)]
+
+    for _ in range(niter):
+        alpha_k = np.dot(res_k.T, res_k) / np.dot(matrix.Multiply(p_k.T), p_k)
+        x_k += alpha_k * p_k
+
+        res = res_k - alpha_k * matrix.Multiply(p_k)
+
+        beta_k = np.dot(res.T, res) / np.dot(res_k.T, res_k)
+
+        p_k = res + beta_k * p_k
+
+        res_k = res.copy()
+
+        resnorm.append(np.linalg.norm(res))
+
+    return x_k, resnorm
+
+def PreconditionedConjugateGradient(matrix:SparseMatrix, rhs:np.array, sol:np.array, niter:int, method:callable)->tuple[float, list[float]]:
+    """
+    Evaluates the Preconditioned Conjugate Gradient method for a given matrix, right-hand side and initial solution
+    """
+    x_k = sol.copy()
+    res = rhs - matrix.Multiply(x_k)
+    
+    z, _ = method(matrix, np.zeros(len(res)), res)
+
+    p_k = z.copy()
+    z_k = z.copy()
+    res_k = res.copy()
+
+    resnorm = [np.linalg.norm(res)]
+
+    for _ in range(niter):
+        alpha_k = np.dot(res_k.T, z) / np.dot(matrix.Multiply(p_k.T), p_k)
+
+        x_k += alpha_k * p_k
+        res = res_k - alpha_k * matrix.Multiply(p_k)
+
+        z, _ = method(matrix, np.zeros(len(res)), res)
+
+        beta = np.dot(res.T, z) / np.dot(res_k.T, z_k)
+
+        p_k = z + beta * p_k
+        z_k = z.copy()
+        res_k = res.copy()
+
+        resnorm.append(np.linalg.norm(res))
+
+    return x_k, resnorm
+
 def IndirectSolver(matrix:SparseMatrix, rhs:np.array, solini:np.array, niter:int, method:callable, omega:float = 1)->tuple[float, list[float]]:
     sol = solini.copy() 
     res = rhs - matrix.Multiply(sol)
+
     resnorm = [np.linalg.norm(res)]
 
     for _ in range(niter):
@@ -103,15 +165,20 @@ def Main()->None:
     rhs = ParseVector(rhs_file)
     sol = np.zeros(len(rhs))
 
-    niter = 10
-    method = GaussSeidelF
-    sol, resnorm = IndirectSolver(matrix, rhs, sol, niter, method)
-
-    print(f"Solution: {sol}")
-    print(f"Residual: {resnorm}")
+    niter = 100
+    solCG, resnormCG = ConjugateGradient(matrix, rhs, sol, niter)
+    solCGJ, resnormCGJ = PreconditionedConjugateGradient(matrix, rhs, sol, niter, Jacobi)
+    solCGJ, resnormCGSSOR = PreconditionedConjugateGradient(matrix, rhs, sol, niter, SSOR)
 
     plt.figure()
-    plt.semilogy(range(niter+1), resnorm)
+    plt.semilogy(range(niter+1), resnormCG)
+    plt.semilogy(range(niter+1), resnormCGJ)
+    plt.semilogy(range(niter+1), resnormCGSSOR)
+    plt.legend(["CG", "CG-Jacobi", "CG-SSOR"])
+    plt.xlabel("Iteration")
+    plt.ylabel("Residual Norm")
+    plt.title("Residual Norm vs Iteration")
+    plt.grid(True)
     plt.show()
 
 if __name__ == "__main__":
