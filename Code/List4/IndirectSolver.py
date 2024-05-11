@@ -67,17 +67,28 @@ class IndirectSolver:
         Solves the linear system of equations using the Jacobi method
         """
         M = self.A.GetDiagonal()
-        reslocal = self.res.copy()
 
-        dx = self.omega * np.divide(reslocal, M)
+        dx = self.omega * np.divide(self.res, M)
 
-        reslocal -= self.A.Multiply(dx)
-
+        self.res -= self.A.Multiply(dx)
         self.x_k += dx 
-        self.res = reslocal
     
     def GaussSeidelF(self)->np.array:
-        raise NotImplementedError
+        """
+        Solves the linear system of equations using the Gauss-Seidel Forward method
+        """
+        dx = np.zeros(self.A.size)
+        reslocal = self.res.copy()
+
+        dx[0] = self.omega * reslocal[0] / self.A.FindAij(0, 0)
+
+        for i in range(1, self.A.size):
+            reslocal[i] -= self.A.InnerProductLowerRows(dx, i)
+
+            dx[i] += self.omega * reslocal[i] / self.A.FindAij(i, i)
+
+        self.res -= self.A.Multiply(dx)
+        self.x_k += dx
     
     def GaussSeidelB(self)->np.array:
         raise NotImplementedError
