@@ -1,0 +1,248 @@
+\section{Modification in the SparseMatrix Class}\label{sec:modification}
+Before we properly dive into the implementation of Iterative Methods for solving linear systems, small modifications in the previously implemented SparseMatrix class are required. SparseMatrix class was implemented in List 3 (see Appendix \ref{sec:github}) and the following modifications are necessary:
+\begin{itemize}
+    \item A method to parse a sparse matrix from a file;
+    \item A method to get the diagonal elements;
+    \item A method to perform the inner product between the vector made by the elements of the lower triangle by a vector of the same size;
+    \item The same method as above, but for the upper triangle;
+\end{itemize}
+
+\subsection{Parsing a Sparse Matrix from a File} \label{sec:parsing}
+The ParseFromFile method is responsible for reading a file and parsing its content into a SparseMatrix object. Code \ref{lst:parsefromfile} shows the implementation of this method.
+\begin{lstlisting}[language=python, caption={ParseFromFile method implementation}, label={lst:parsefromfile}]
+def ParseFromFile(self, file:str)->None:
+    row = 0
+    col = 0
+    end_row = False
+    self.ptr.append(0)
+
+    with open(file, "r") as f:
+        lines = f.readlines()
+
+        for line in lines:
+            line = line.strip("= { , \n")
+            
+
+            for element in line.split(","):
+                if "}" in element:
+                    element = element.strip("}")
+                    end_row = True
+
+                try: element = float(element)
+                except ValueError: continue
+
+                if element: 
+                    self.data.append(element)
+                    self.cols.append(col)
+
+                col += 1
+
+                if end_row:
+                    self.ptr.append(len(self.data))
+                    row += 1
+                    col = 0
+                    end_row = False
+        
+    self.size = row
+\end{lstlisting}
+
+This method sets the cols, data and ptr vector required to represent a sparse matrix. In line 15, the code checks if the element has a closing bracket, which means that the row has ended. If so, the end\_row flag is set to True and the row number is incremented.  
+
+Lines 19 and 20 try to convert the element (at this point a string) to a float. If the conversion is not successful, the code continues the iteration. If the conversion is successful, the element is checked to verify whether it is null. If the element is non-null, it is appended to the data vector and its column to the cols vector. 
+
+Lines 28 to 32 update the row and reset the column counter in case the row has ended. The size of the matrix is set to the number of rows found in the file. 
+
+\subsection{Getting the Diagonal Elements} \label{sec:diagonal}
+During the Jacobi method, it is necessary to retrieve the matrix's diagonal elements to perform the update of the residual and the solution. The GetDiagonal method is implemented to perform this task. Code \ref{lst:getdiagonal} shows the implementation of this method.
+\begin{lstlisting}[language=python, caption={GetDiagonal method implementation}, label={lst:getdiagonal}]
+def GetDiagonal(self)->np.array:
+    diag = np.zeros(self.size)
+    for i in range(self.size):
+        diag[i] = self.FindAij(i, i)
+
+    return diag
+\end{lstlisting}
+
+A vector called diag is returned by the method. This vector is filled with the diagonal elements, which are obtained by calling the FindAij method (see List 3 implementation in Appendix \ref{sec:github}) for each element in the diagonal.
+
+\subsection{Performing the Inner Product between the Lower and Upper Triangles and a Vector} \label{sec:lower}
+Finally, the last modifications are the InnerProductLowerRows and InnerProductUpperRows methods. These methods are responsible for performing the inner product between the lower and upper triangles of the matrix and a vector, a procedure required in the Gauss-Seidel method. Code \ref{lst:innerproduct} shows the implementation of these methods.
+\begin{lstlisting}[language=python, caption={InnerProductLowerRows and InnerProductUpperRows methods implementation}, label={lst:innerproduct}]
+def InnerProductLowerRows(self, vector:np.array, row:int)->np.array:
+    nelem = self.ptr[row+1] - self.ptr[row]
+    ntotal = self.ptr[row]
+
+    sum = 0
+    for j in range(ntotal, ntotal + nelem):
+        if self.cols[j] >= row: continue
+
+        sum += self.data[j] * vector[self.cols[j]]
+
+    return sum
+
+def InnerProductUpperRows(self, vector:np.array, row:int)->np.array:
+    nelem = self.ptr[row+1] - self.ptr[row]
+    ntotal = self.ptr[row]
+
+    sum = 0
+    for j in range(ntotal, ntotal + nelem):
+        if self.cols[j] <= row: continue
+
+        sum += self.data[j] * vector[self.cols[j]]
+
+    return sum
+\end{lstlisting}
+
+The only difference between both methods is that, while the first one searches for elements in the lower triangle (if self.cols[j] >= row - Line 7), the second one searches for elements in the upper triangle (if self.cols[j] <= row - Line 15). 
+
+Since the Gauss-Seidel method can be performed backward and forward, both implementations are required. Another method that employs both implementations is the Symmetric Successive Over-Relaxation (SSOR) method, which performs both forward and backward Gauss-Seidel iterations.
+
+With these modifications done, we can now implement the Iterative Methods for solving linear systems.
+
+\section{The IndirectSolver Class}\label{sec:indirectsolver}
+This list's main goal is to implement and verify the performance of Iterative Methods for solving linear systems. Herein are implemented and compared the Conjugate Gradient (CG) and the Preconditioned Conjugate Gradient (PCG) methods and as preconditioners, the Jacobi and the SSOR methods. For simplicity, the preconditioned conjugate gradient with Jacobi and with SSOR are here referred to as CG-J and CG-SSOR, respectively.
+
+The IndirectSolver class is responsible for implementing these methods. The class constructor is shown in Code \ref{lst:indirectsolverconstructor}.
+\begin{lstlisting}[language=python, caption={IndirectSolver class constructor}, label={lst:indirectsolverconstructor}]
+@dataclass
+class IndirectSolver:
+    A: SparseMatrix
+    rhs: np.ndarray
+    niter: int
+    omega: float = 1.0
+    method: callable = None
+
+    resnorm: list[float] = field(init=False, default_factory=list)
+    
+    p_k: np.array = field(init=False, default=list)
+    res_k: np.array = field(init=False, default=list)
+    
+    preconditioner: callable = field(init=False, default=None)
+    z: np.array = field(init=False, default=None)
+    z_k: np.array = field(init=False, default=None)
+\end{lstlisting}
+
+As parameters, the class receives the sparse matrix A, the right-hand side vector rhs and the number of iterations niter. The relaxation parameter omega and the method to be used are optional parameters, although the method is set after. The resnorm list stores the norm of the residual at each iteration. The p\_k, res\_k, z, and z\_k vectors are used to store the search direction, the residual, and the preconditioned vectors. A preconditioner might be set to the solver. 
+
+Hereafter, the methods implemented in the class are presented.
+
+\subsection{Solve Method}\label{sec:solve}
+The solve method is a general function that calls the method set in the constructor to solve the linear system. Code \ref{lst:solve} shows the implementation of this method.
+\begin{lstlisting}[language=python, caption={Solve method implementation}, label={lst:solve}]
+def Solve(self)->None:
+    if not self.method:
+        raise ValueError("Method not set")
+    
+    sol = ZEROS(len(self.rhs))
+    res = self.rhs - self.A.Multiply(sol)
+
+    if self.method == self.ConjugateGradient:
+        if not self.preconditioner:
+            self.p_k = res.copy()
+        else:
+            self.z, _ = self.preconditioner(ZEROS(self.A.size), res)
+            self.p_k = self.z.copy()
+            self.z_k = self.z.copy()
+
+        self.res_k = res.copy()
+        
+    self.resnorm = [NORM(res)]
+    for i in range(self.niter):
+        print(f"Method: {self.method} - Iteration {i}")
+        sol, res = self.method(sol, res)
+        self.resnorm.append(NORM(res))
+\end{lstlisting}
+
+Although it is not the purpose of this work, the solve method is implemented in a way that allows the user to choose not only between the CG and PCG. Line 2 checks if a valid method is set. Lines 5 to 17 initialize the required vectors depending on the method set. If the method is the Conjugate Gradient, the search direction p\_k is set. If a preconditioner is set, the preconditioned vector z is set. 
+
+Line 19 initializes the residual norm vector. At line 20, a loop is performed for the number of iterations set in the constructor and the method performs the solution of the linear system. The residual norm is stored at each iteration.
+
+\subsection{Conjugate Gradient Method}\label{sec:cg}
+The ConjugateGradient method is called by the Solve method and solves the linear system. Code \ref{lst:cg} shows the implementation of this method.
+\begin{lstlisting}[language=python, caption={ConjugateGradient method implementation}, label={lst:cg}]
+def ConjugateGradient(self, sol:np.array, res:np.array)->tuple[float, list[float]]:
+    alpha_k = INNER(res.T, res) / INNER(self.A.Multiply(self.p_k.T), self.p_k) if not self.preconditioner else INNER(self.res_k.T, self.z) / INNER(self.A.Multiply(self.p_k.T), self.p_k)
+
+    sol += alpha_k * self.p_k
+    res = self.res_k - alpha_k * self.A.Multiply(self.p_k)
+
+    if not self.preconditioner:
+        beta_k = INNER(res.T, res) / INNER(self.res_k.T, self.res_k)
+        self.p_k = res + beta_k * self.p_k
+    
+    else:
+        self.z, _ = self.preconditioner(ZEROS(self.A.size), res)
+        beta_k = INNER(res.T, self.z) / INNER(self.res_k.T, self.z_k)
+
+        self.z_k = self.z.copy()
+        self.p_k = self.z + beta_k * self.p_k
+
+    self.res_k = res.copy()
+    return sol, res
+\end{lstlisting}
+
+Aiming to avoid rewriting the code for the PCG method, the ConjugateGradient method is implemented in a way that allows the user to set a preconditioner. If a preconditioner is set, the method calculates the alpha and beta coefficients using the preconditioned vectors.
+
+Line 2 calculates the alpha coefficient, considering whether a preconditioner is set. The solution is then updated in line 4 and the residual in line 5. If no preconditioner is set, the beta coefficient is calculated in line 8 and the direction is updated in line 10. 
+
+Conversely, if a preconditioner is set, the preconditioned vector is updated in line 13, the beta coefficient is calculated in line 14 and the direction is updated in line 18. The residual norm is evaluated in line 20 regardless of the preconditioner.
+
+\subsection{The Jacobi Preconditioner}\label{sec:jacobi}
+Two preconditioners are implemented in this work: the Jacobi and the SSOR. The Jacobi preconditioner is implemented in Code \ref{lst:jacobi}.
+\begin{lstlisting}[language=python, caption={Jacobi preconditioner implementation}, label={lst:jacobi}]
+def Jacobi(self, sol:np.array, res:np.array)->None:
+    M = self.A.GetDiagonal()
+    reslocal = res.copy()
+
+    dx = self.omega * np.divide(res, M)
+
+    reslocal -= self.A.Multiply(dx)
+
+    return sol + dx, reslocal
+\end{lstlisting}
+
+This preconditioner follows the idea behind the Jacobi method, evaluating the matrix M as the diagonal of the matrix A (line 2). The Solution is then updated by the division of the current residual and the matrix M (line 5). The residual for the next step is obtained by subtracting the matrix-vector product of matrix A and the solution update (line 7).
+
+\subsection{The SSOR Preconditioner}\label{sec:ssor}
+The second preconditioner implemented is the SSOR. The SSOR's procedure employs the Gauss-Seidel method, performing both forward and backward iterations at each step. Code \ref{lst:ssor} shows the implementation of this method.
+\begin{lstlisting}[language=python, caption={SSOR preconditioner implementation}, label={lst:ssor}]
+def GaussSeidelF(self, sol:np.array, res:np.array)->np.array:
+    dx = ZEROS(self.A.size)
+    reslocal = res.copy()
+
+    dx[0] = self.omega * reslocal[0] / self.A.FindAij(0, 0)
+
+    for i in range(1, self.A.size):
+        reslocal[i] -= self.A.InnerProductLowerRows(dx, i)
+        dx[i] += self.omega * reslocal[i] / self.A.FindAij(i, i)
+
+    reslocal = res - self.A.Multiply(dx)
+
+    return sol + dx, reslocal
+    
+def GaussSeidelB(self, sol:np.array, res:np.array)->np.array:
+    dx = ZEROS(self.A.size)
+    reslocal = res.copy()
+
+    dx[self.A.size-1] = self.omega * reslocal[self.A.size-1] / self.A.FindAij(self.A.size-1, self.A.size-1)
+
+    for i in range(self.A.size-2, -1, -1):
+        reslocal[i] -= self.A.InnerProductUpperRows(dx, i)
+        dx[i] += self.omega * reslocal[i] / self.A.FindAij(i, i)
+
+    reslocal = res - self.A.Multiply(dx)
+
+    return sol + dx, reslocal
+    
+def SSOR(self, sol:np.array, res:np.array)->np.array:
+    sol, res = self.GaussSeidelF(sol, res)
+    sol, res = self.GaussSeidelB(sol, res)
+
+    return sol, res 
+\end{lstlisting}
+
+As shown in Code \ref{lst:ssor}, the SSOR method calls the GaussSeidelF and GaussSeidelB, performing two iterations at each step (lines 29 to 33). The GaussSeidelF method does a forward iteration, updating and the residual equation-wise (lines 8 and 9). The GaussSeidelB method, on the other hand, performs a backward iteration (lines 18 and 19), updating the residual equation-wise from the last to the first equation. 
+
+The updating of the residual is done by the vector inner product with the lower and upper triangles of the matrix A. The solution is updated by the division of the residual and the diagonal of the matrix A. Both methods return the updated solution and residual. However, while the GaussSeidelF uses the initial solution and residual, the GaussSeidelB uses the updated solution and residual from the GaussSeidelF method (lines 30 and 31). 
+
+The next section presents the results obtained by the linear system given in class. 
