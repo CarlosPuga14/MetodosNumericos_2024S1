@@ -30,6 +30,12 @@ class IndirectSolver:
         """
         self.ninter = ninter
 
+    def Set_omega(self, omega: float):
+        """ 
+        Sets the relaxation factor for the solver
+        """
+        self.omega = omega
+
     def Set_method(self, method: str):
         """ 
         Sets the method to be used by the solver. Currently available methods are:
@@ -91,11 +97,29 @@ class IndirectSolver:
         self.x_k += dx
     
     def GaussSeidelB(self)->np.array:
-        raise NotImplementedError
+        """ 
+        Solves the linear system of equations using the Gauss-Seidel Backward method
+        """
+        dx = np.zeros(self.A.size)
+        reslocal = self.res.copy()
+
+        dx[self.A.size-1] = self.omega * reslocal[self.A.size-1] / self.A.FindAij(self.A.size-1, self.A.size-1)
+
+        for i in range(self.A.size-2, -1, -1):
+            reslocal[i] -= self.A.InnerProductUpperRows(dx, i)
+            dx[i] += self.omega * reslocal[i] / self.A.FindAij(i, i)
+
+        self.res -= self.A.Multiply(dx)
+        self.x_k += dx
     
     def SSOR(self)->np.array:
-        raise NotImplementedError
-    
+        """ 
+        Solves the linear system of equations using the Symmetric Successive Over-Relaxation method
+        """
+
+        self.GaussSeidelF()
+        self.GaussSeidelB()
+
     def ConjugateGradient(self)->tuple[float, list[float]]:
         raise NotImplementedError
     
