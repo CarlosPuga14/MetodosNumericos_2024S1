@@ -190,6 +190,6 @@ class IndirectSolver:
             
         self.resnorm = [NORM(res)]
         for i in range(self.niter):
-            print(f"Method: {self.method} - Iteration {i}")
+            print(f"Iteration {i}")
             sol, res = self.method(sol, res)
             self.resnorm.append(NORM(res))
