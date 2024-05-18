@@ -1,1 +1,137 @@
 \section{Introduction}\label{sec:introduction}
+Iterative methods are widely used for solving linear systems. In comparison with direct methods, the time required to solve the linear system with sufficient accuracy is significantly longer. However, for larger systems, with a high percentage of zeros (sparse matrices), iterative techniques are efficient in terms of computational and storage requirements. Systems of this type usually appear when solving partial differential equations numerically, such as the Finite Element Method. 
+
+The main idea behind iterative methods is to solve a $n \times n$ linear system of equations $Ax = b$ starting with an approximation $x^0$ and generating a sequence of vector $x^k$ that converges to $x$. In this work, the Jacobi and the Symmetric Successive Over-Relaxation (SSOR) are introduced as preconditioners to the Conjugate Gradient method.  As references, the following books were used: \cite{burden1997numerical,de2000metodos,golub2013matrix}. The methods are explained for full matrices. However, the implementation is done for sparse matrices.
+
+\subsection{The Jacobi's Method}
+The Jacobi method is obtained by solving the \textit{ith} equation in $Ax=b$ for $x_i$. For each $k/geq1$, it generates a new approximation $x^{k+1}_i$ of $x_i$ using the previous approximation $x^k$:
+\begin{equation}
+    x^{k+1}_i = \frac{1}{a_{ii}} \left( b_i - \sum_{j=1,j\neq i}^{n} a_{ij}x^k_j \right).
+\end{equation} 
+
+The Jacobi method can be written in the matrix form by splitting the matrix $A$ into its diagonal $D$ and off-diagonal $-L-U$ components, in which $-L$ is strictly the negative lower triangle of $A$ and $-U$ is strictly the negative upper triangle of $A$. The Jacobi method can be written as:
+\begin{equation*}
+    (D - L - U)x = b \Rightarrow Dx = (L + U)x + b,
+\end{equation*} 
+if $D$ is invertible, the matrix form for the Jacobi method reads:
+\begin{equation}
+    x^{k+1} = D^{-1}(L + U)x^k + D^{-1}b,
+\end{equation}
+in this case, the matrix used as a preconditioner is given by 
+\begin{equation}
+    \label{eq:Jacobi}
+    M = D^{-1}.
+\end{equation}
+
+\subsection{The Gauss-Seidel Method}
+The main idea behind the Gauss-Seidel method is to use the new approximations $x^{k+1}_i$ as soon as they are computed. The components of $x^k$ are used to compute all the components $x_i$ of $x^{k+1}$. However, for $i>1$, the component $x_1^{k+1}, ..., x_{i-1}^{k+1}$ have already been updated and are expected to be better approximations to the solution. The Gauss-Seidel method can be written as:
+\begin{equation}
+    x^{k+1}_i = \frac{1}{a_{ii}} \left( b_i - \sum_{j=1}^{i-1} a_{ij}x^{k+1}_j - \sum_{j=i+1}^{n} a_{ij}x^k_j \right).
+\end{equation}
+
+The Gauss-Seidel matrix representation is obtained by multiplying both sides of the equation by the respective diagonal term $a_{ii}$
+\begin{equation*}
+    a_{i,1} x_1^{k+1} + ... + a_{i,i}^{k+1} = b_i - a_{i,i+1}x_{i+1}^k - ... - a_{i,n}x_n^k,
+\end{equation*}
+using the definitions of D, L, and U previously defined, the Gauss-Seidel method can be written as:
+\begin{equation*}
+    (D - L)x = Ux + b \Rightarrow x = (D - L)^{-1}Ux + (D - L)^{-1}b,
+\end{equation*}
+assuming that $(D - L)$ is invertible, the matrix form for the Gauss-Seidel method reads:
+\begin{equation}
+    x^{k+1} = (D - L)^{-1}Ux^k + (D - L)^{-1}b,
+\end{equation}
+
+The Gauss-Seidel method, however, does not keep the symmetry of the matrix $A$. Since the Conjugate Gradient method is designed for symmetric positive definite matrices, the Gauss-Seidel method itself cannot be used as a preconditioner. 
+
+What is done in practice is to use the Symmetric Successive Over-Relaxation (SSOR) method as a preconditioner for the Conjugate Gradient method. The SSOR method is a combination of the Gauss-Seidel method and the Gauss-Seidel method applied to the transpose of the matrix $A$. In this case, the matrix used as a preconditioner is given by 
+\begin{equation}
+    \label{eq:SSOR}
+    M = (D - L)^{-1}D^{-1}(D - U).
+\end{equation}
+
+\subsection{The Conjugate Gradient Method}
+The Conjugate Gradient method is useful when employed to solve large sparse matrices from symmetric positive definite systems of linear equations. In this section, the non-preconditioned method is explained. First, one defines the inner product of two vectors $x$ and $y$ as
+\begin{equation}
+    (x,y) = x^Ty.
+\end{equation}
+
+For all the properties used to derive the Conjugate Gradient method, one refers to Section 7.6 of \cite{burden1997numerical}. 
+The main idea of the Conjugate Gradient method is to apply concepts of minimizing energy. The vector $x^*$ solves the linear system $Ax = b$ if and only if $x^*$ is the minimizer of the function 
+\begin{equation}
+    g(x) = (x, Ax) - 2(x, b).
+\end{equation}
+
+It is proved that for any vector $v \neq 0$, $g(x + \alpha v) \leq g(x)$, unless $(v, b - Ax) = 0$. This is fundamental to the Conjugate Gradient method. The search direction $v$ moves from $x^k$ to improve the approximation $x^{k+1}$, following the path of the steepest descent. 
+
+Let $r^k = b - Ax^k$ be the residual at the $k$-th iteration. If $r \neq 0$ and $v$ and $r$ are orthogonal then $x + \alpha v$ gives a smaller value for $g$ than $g(x)$. The Conjugate Gradient method chooses the search directions $\{v^k\}$ during the iterations such that the residual vectors $\{r^k\}$ are mutually orthogonal. 
+
+Given a residual $r^k = b - Ax^k$ and initial search direction $v^k$, the method follows the procedure of finding the real number $\alpha$
+\begin{equation}
+    \alpha^k = \frac{(r^k, r^k)}{(v^k, Av^k)},
+\end{equation}
+and update the Solution
+\begin{equation}
+    x^{k+1} = x^k + \alpha^k v^k.
+\end{equation}
+
+The residual is updated 
+\begin{equation}
+    r^{k+1} = r^k - \alpha^k Av^k,
+\end{equation}
+and a new search direction is computed
+\begin{equation}
+    v^{k+1} = r^{k+1} - \beta^k v^k,
+\end{equation}
+where 
+\begin{equation}
+    \beta^k = \frac{(r^{k+1}, r^{k+1})}{(r^k, r^k)}.
+\end{equation}
+\subsection{The Preconditioned Conjugate Gradient Method}
+The main reason to precondition the Conjugate Gradient method is to improve the convergence rate. In this scenario, the Conjugate Gradient method is not applied to the original matrix $A$, but to another positive matrix with a smaller condition number. 
+
+The condition number of a matrix $A$ is defined as
+\begin{equation}
+    \label{eq:condition_number}
+    \kappa(A) = \frac{\lambda_{max}(A)}{\lambda_{min}(A)},
+\end{equation}
+where $\lambda_{max}(A)$ and $\lambda_{min}(A)$ are the maximum and minimum eigenvalues of $A$, respectively. If the condition number is close to 1, the matrix $A$ is said to be well-conditioned. On the other hand, if the condition number is large, the matrix is said to be ill-conditioned.
+
+To maintain the symmetry of the matrix $A$, the preconditioner matrix $M$ pre and post-multiplies the matrix $A$ in the Conjugate Gradient method
+\begin{equation}
+    \hat{A} = M^{-1}AM^{-T},
+\end{equation}
+transforming the original linear system $Ax = b$ into the preconditioned linear system 
+\begin{equation*}
+    (M^{-1}AM^{-T})M^{-1}x = M^{-1}b \Rightarrow M^{-1}Ax = M^{-1}b. 
+\end{equation*}
+
+The terms discussed in the previous section are then applied to the preconditioned system. The preconditioned Conjugate Gradient method is given by the following steps: first, the preconditioner matrix M is computed and vector $z^k$ is defined as
+\begin{equation}
+    z^k = M^{-1}r^k,
+\end{equation}
+then, search direction $v^k$ is initially set to $z^k$ and the method follows the procedure of finding the real number $\alpha$
+\begin{equation}
+    \alpha^k = \frac{(r^k, z^k)}{(v^k, Av^k)},
+\end{equation}
+the solution and residual are updated
+\begin{equation}
+    x^{k+1} = x^k + \alpha^k v^k,
+\end{equation}
+\begin{equation}
+    r^{k+1} = r^k - \alpha^k Av^k,
+\end{equation}
+a new vector $z^{k+1}$ is computed
+\begin{equation}
+    z^{k+1} = M^{-1}r^{k+1},
+\end{equation}
+and the real number $\beta$ is computed
+\begin{equation}
+    \beta^k = \frac{(r^{k+1}, z^{k+1})}{(r^k, z^k)},
+\end{equation}
+updating the search direction
+\begin{equation}
+    v^{k+1} = z^{k+1} + \beta^k v^k.
+\end{equation}
+
+If $M^{-1}$ is chosen as the inverse of the original matrix $A$, then the preconditioned Conjugate Gradient method converges in a single iteration. However, it is equivalent to inverting the original matrix $A$, which is computationally expensive. The choice of the preconditioner matrix $M$ is crucial to the convergence rate of the method and depends on how much the condition number of the matrix $A$ is reduced.  
