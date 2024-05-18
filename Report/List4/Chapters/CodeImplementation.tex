@@ -95,7 +95,7 @@ def InnerProductUpperRows(self, vector:np.array, row:int)->np.array:
 
 The only difference between both methods is that, while the first one searches for elements in the lower triangle (if self.cols[j] >= row - Line 7), the second one searches for elements in the upper triangle (if self.cols[j] <= row - Line 15). 
 
-Since the Gauss-Seidel method can be performed backward and forward, both implementations are required. Another method that employs both implementations is the Symmetric Successive Over-Relaxation (SSOR) method, which performs both forward and backward Gauss-Seidel iterations.
+Since the Gauss-Seidel method can be performed backward and forward, both implementations are required. Another method that employs both implementations is the Symmetric Successive Over-Relaxation method, which performs both forward and backward Gauss-Seidel iterations.
 
 With these modifications done, we can now implement the Iterative Methods for solving linear systems.
 
