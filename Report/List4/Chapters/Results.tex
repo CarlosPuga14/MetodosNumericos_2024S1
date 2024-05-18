@@ -40,9 +40,6 @@ def Main()->None:
         print(f"resnormCG = {str(resnormCG)}", file=f)
         print(f"resnormCGJ = {str(resnormCGJ)}", file=f)
         print(f"resnormCGSSOR = {str(resnormCGSSOR)}", file=f)
-
-if __name__ == "__main__":
-    Main()
 \end{lstlisting}
 
 Lines 1 and 2 import the required packages (SparseMatrix, from list 3, and IndirectSolver). Lines 4 to 8 define a function to parse the rhs.dat file and assign these values to a vector. 
