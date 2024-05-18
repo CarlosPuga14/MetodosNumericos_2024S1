@@ -21,6 +21,7 @@ def Main()->None:
     matrix_file = "List4/matrix.dat"
     rhs_file = "List4/rhs.dat"
     results_file = "List4/Results.py"
+    write_results = False
 
     niter = 500
 
@@ -47,11 +48,12 @@ def Main()->None:
     solver.Solve()
     resnormCGSSOR = solver.resnorm
 
-    print("------ Saving results ------")
-    with open(results_file, 'w') as f:
-        print(f"resnormCG = {str(resnormCG)}", file=f)
-        print(f"resnormCGJ = {str(resnormCGJ)}", file=f)
-        print(f"resnormCGSSOR = {str(resnormCGSSOR)}", file=f)
+    if write_results:
+        print("------ Saving results ------")
+        with open(results_file, 'w') as f:
+            print(f"resnormCG = {str(resnormCG)}", file=f)
+            print(f"resnormCGJ = {str(resnormCGJ)}", file=f)
+            print(f"resnormCGSSOR = {str(resnormCGSSOR)}", file=f)
 
     print("------ Simulation ended withou errors ------")
 
