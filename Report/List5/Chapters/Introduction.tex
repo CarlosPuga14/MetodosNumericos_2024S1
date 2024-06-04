@@ -1,0 +1,33 @@
+\section{Introduction} \label{sec:introduction}
+The task of solving a nonlinear system of equations is not trivial. In general, what is done is to linearize the system and solve it. However, there are times when it is not possible or, the linearization does not yield a satisfactory result. In these cases, iterative methods are applied to solve the nonlinear problem numerically. 
+
+In this work, two methods are presented to solve nonlinear systems of equations: Newton's Method and the Quasi-Newton Method. The first method is a generalization of the Newton-Raphson method for one variable problem. It consists, in one dimension, of finding a function $\phi$ such that 
+\begin{equation}
+    g(x) = x - \phi(x) f(x)
+    \label{eq:Newton1D}
+\end{equation}
+gives a quadratic convergence rate to the solution. In Eq. \eqref{eq:Newton1D}, $g(x)$ is the approximated solution and $f(x)$ is the function that we want to find the root evaluated at $x$. In this context, function $\phi$ is chosen to be the inverse of the derivative of $f(x)$, assuming that $f'(x)$ is not zero.
+
+Newton's method can be extended to multidimensional problems. In this case, Eq. \eqref{eq:Newton1D} becomes
+\begin{equation}
+    \bm{G}(\bm{x}) = \bm{x} - A(\bm{x})^{-1} \bm{F}(\bm{x}),
+    \label{eq:NewtonND}
+\end{equation} 
+in which the matrix $A(\bm{x})$ is given by the derivatives of the functions that compose the system of equations 
+\begin{equation}
+    A(\bm{x}) = \begin{bmatrix}
+        \frac{\partial F_1}{\partial x_1} & \frac{\partial F_1}{\partial x_2} & \cdots & \frac{\partial F_1}{\partial x_n} \\
+        \frac{\partial F_2}{\partial x_1} & \frac{\partial F_2}{\partial x_2} & \cdots & \frac{\partial F_2}{\partial x_n} \\
+        \vdots & \vdots & \ddots & \vdots \\
+        \frac{\partial F_n}{\partial x_1} & \frac{\partial F_n}{\partial x_2} & \cdots & \frac{\partial F_n}{\partial x_n} \\
+    \end{bmatrix}.
+\end{equation}
+
+Matrix $A(x)$ is also known as the Jacobian matrix. In this context, the Eq. \eqref{eq:NewtonND} is rewritten and Newton's method is given by 
+\begin{equation}
+    \bm{G}(\bm{x})^{k} = \bm{x}^{k-1} - J(\bm{x}^{k-1})^{-1} \bm{F}(\bm{x}^{k-1}),
+    \label{eq:NewtonNDJ}
+\end{equation}
+where $J(\bm{x})$ is the Jacobian matrix evaluated at $\bm{x}$. Attention to the fact that the linear system of equations $J(\bm{x}^{k-1})^{-1}\bm{F}(\bm{x}^{k-1})$ must be solved in each iteration of Newton's method.
+
+
