@@ -63,7 +63,7 @@ def main():
         G = [eq1, eq2, eq3]
         grad_G = [grad_eq1, grad_eq2, grad_eq3]
 
-        x0 = [0.1, 0.1, 0.1]
+        x0 = [0.1 for _ in range(3)]
         exact = [-1.0202573099857735, 0.1996053775230006, 2.2036488455303114]
 
         n_iter = 25
