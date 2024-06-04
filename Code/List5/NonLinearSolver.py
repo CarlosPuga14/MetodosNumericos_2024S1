@@ -23,10 +23,12 @@ class NonLinearSolver:
     x0: list[float] = field(default_factory=list)
 
     max_iter: int = 50
+    tolerance: float = 1e-15
 
     x_list: list[list] = field(init=False, default_factory=list)
     diff: list[float] = field(init=False, default_factory=list)
     diff_log: list[float] = field(init=False, default_factory=list)
+    residual: list[float] = field(init=False, default_factory=list)
 
     exact_solution: list[float] = field(default_factory=list)   
 
@@ -48,11 +50,17 @@ class NonLinearSolver:
         Set the method to solve the system of equations
         """
         str_to_method = {
-            "Newton": self.NewtonRaphson,
+            "Newton": self.Newton,
             "Broyden": self.Broyden
         }
 
         self.method = str_to_method[method]
+
+    def SetTolerance(self, tol:float) -> None:
+        """
+        Set the tolerance for the solution
+        """
+        self.tolerance = tol
 
     def SetExactSolution(self, sol:list[float]) -> None:
         """
@@ -64,13 +72,27 @@ class NonLinearSolver:
         """
         Get the error and convergence rate
         """
-        return self.diff, self.diff_log
+        return self.diff, self.diff_log, self.residual
+    
+    def SaveResidual(self, xval) -> None:
+        """
+        Save the residual of the system of equations
+        """
+        res = ARRAY(list(map(lambda eq: eq(*xval), self.equations)))
+        self.residual.append(NORM(res))
 
-    def NewtonRaphson(self) -> None:
+
+    def Newton(self) -> None:
         """
         Solve the system of equations using Newton-Raphson method
         """
         xval = self.x0
+
+        if any(self.exact_solution):
+                self.diff.append(NORM(xval - self.exact_solution))
+
+        self.SaveResidual(xval)
+                    
         for _ in range(self.max_iter):
             G = ARRAY(list(map(lambda eq: eq(*xval), self.equations)))
             Grad_G = ARRAY(list(map(lambda grad: grad(*xval), self.gradients)))
@@ -78,9 +100,13 @@ class NonLinearSolver:
             x_next = xval - LINSOLVE(Grad_G, G)
 
             self.x_list.append(x_next)
+            self.SaveResidual(x_next)
 
             if any(self.exact_solution):
                 self.diff.append(NORM(x_next - self.exact_solution))
+
+            if NORM(self.residual[-1]) < self.tolerance:
+                break
 
             xval = x_next
 
@@ -89,12 +115,15 @@ class NonLinearSolver:
         Solve the system of equations using Broyden method
         """
         v0 = self.x0.copy()
+        self.SaveResidual(v0)
 
         G0 = ARRAY(list(map(lambda eq: eq(*v0), self.equations)))
         Grad_G0 = ARRAY(list(map(lambda grad: grad(*v0), self.gradients)))
 
         v1 = v0 - LINSOLVE(Grad_G0, G0)
+    
         self.x_list.append(v1)
+        self.SaveResidual(v1)
 
         G1 = ARRAY(list(map(lambda eq: eq(*v1), self.equations)))
         
@@ -105,14 +134,17 @@ class NonLinearSolver:
 
         del_G = G1 - G0
 
-        for _ in range(self.max_iter):
+        for _ in range(self.max_iter-1):
             grad_G1 = Grad_G0 + OUTER(del_G - Grad_G0 @ del_x, del_x) / (del_x @ del_x)
 
             Grad_G0 = grad_G1
 
             xnext = v1 - LINSOLVE(grad_G1, G1)
+
             v0 = v1 
             v1 = xnext
+
+            self.SaveResidual(v1)
 
             G0 = G1
             G1 = ARRAY(list(map(lambda eq: eq(*v1), self.equations)))
@@ -124,6 +156,9 @@ class NonLinearSolver:
 
             if any(self.exact_solution):
                 self.diff.append(NORM(v1 - self.exact_solution))
+
+            if NORM(self.residual[-1]) < self.tolerance:
+                break
 
     def Solve(self) -> None:
         """
@@ -155,3 +190,6 @@ class NonLinearSolver:
 
             f.write(f"Convergence rate: ")
             f.write(printVector(self.diff_log))
+
+            f.write(f"Residual: \n")
+            f.write(printVector(self.residual))

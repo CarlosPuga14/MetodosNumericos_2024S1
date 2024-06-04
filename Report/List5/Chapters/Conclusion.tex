@@ -1,2 +1,8 @@
 \section{Conclusions} \label{sec:conclusions}
+This work, by solving two different nonlinear systems of equations, presented the Newton and Broyden methods. For the same initial guess, the first system yielded the same solution for both methods, while the second system showed a different solution for each method. This fact evidences the importance and dependence of the initial guess for the solution to converge to one answer or another. 
 
+Newton's method is also influenced by the Jacobian matrix, which takes into account the derivatives of the functions that compose the system of equations. Broyden's method, on the other hand, does not calculate the Jacobian matrix, but approximates it by a matrix that is updated in each iteration, which makes it more flexible and less computationally expensive. The difference in terms of computational effort for a single iteration is $n^2 + n$ scalar evaluations plus $O(n^3)$ arithmetic operations for Newton's method, while Broyden's method requires $n$ scalar evaluations plus $O(n^2)$ arithmetic operations.
+
+Despite all the computational effort, the results show that the Newton method converges faster than Broyden's method. Because an approximation is made for the Jacobian matrix, Broyden's method loses the quadratic convergence, instead having the so-called superlinear convergence. 
+
+In conclusion, both methods are efficient for solving nonlinear systems of equations. Each one has its advantages and disadvantages, and the choice of which one to use needs to be made according to the problem to be solved and the resources available. In the given cases, Newton's method allegedly performed better, but this might not be the case for other equations.

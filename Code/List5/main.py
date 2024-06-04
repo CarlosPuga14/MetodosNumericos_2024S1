@@ -8,30 +8,49 @@ SIN: callable = np.sin
 E: float = np.e
 PI: float = np.pi
 
-def PlotSolution(diff_Newton, diff_Broyden, diff_log_Newton, diff_log_Broyden) -> None:
+def PlotSolution(diff_Newton, diff_log_Newton, res_Newton, diff_Broyden, diff_log_Broyden, res_Broyden) -> None:
     """
     Plot the solution
     """
     import matplotlib.pyplot as plt
-    x = range(len(diff_Newton))
-    x2 = range(len(diff_log_Newton))
+    xdiffN = range(len(diff_Newton))
+    xdifflogN = range(len(diff_log_Newton))
+    xresN = range(len(res_Newton))
+
+    xdiffB = range(len(diff_Broyden))
+    xdifflogB = range(len(diff_log_Broyden))
+    xresB = range(len(res_Broyden))
+
+    if any(diff_Newton) and any(diff_Broyden):
+        plt.figure()
+        plt.semilogy(xdiffN, diff_Newton, marker="o", label="Newton")
+        plt.semilogy(xdiffB, diff_Broyden, marker="o", label="Broyden")
+        plt.xlabel("Iteration")
+        plt.ylabel("Error")
+        plt.grid(True)
+        plt.legend()
+        plt.savefig("List5/Error.pdf")
+        plt.show()
+
+    if any(diff_log_Newton) and any(diff_log_Broyden):
+        plt.figure()
+        plt.plot(xdifflogN, diff_log_Newton, marker="o", label="Newton")
+        plt.plot(xdifflogB, diff_log_Broyden, marker="o", label="Broyden")
+        plt.xlabel("Iteration")
+        plt.ylabel("Convergence rate")
+        plt.grid(True)
+        plt.legend()
+        plt.savefig("List5/Convergence.pdf")
+        plt.show()
 
     plt.figure()
-    plt.semilogy(x, diff_Newton, marker="o", label="Newton")
-    plt.semilogy(x, diff_Broyden[:-1], marker="o", label="Broyden")
+    plt.semilogy(xresN, res_Newton, marker="o", label="Newton")
+    plt.semilogy(xresB, res_Broyden, marker="o", label="Broyden")
     plt.xlabel("Iteration")
-    plt.ylabel("Error")
+    plt.ylabel("Residual")
     plt.grid(True)
     plt.legend()
-    plt.show()
-
-    plt.figure()
-    plt.plot(x2, diff_log_Newton, marker="o", label="Newton")
-    plt.plot(x2, diff_log_Broyden[:-1], marker="o", label="Broyden")
-    plt.xlabel("Iteration")
-    plt.ylabel("Convergence rate")
-    plt.grid(True)
-    plt.legend()
+    plt.savefig("List5/Residual.pdf")
     plt.show()
 
 def main():
@@ -47,7 +66,6 @@ def main():
         grad_G = [grad_eq1, grad_eq2]
 
         x0 = [.1 for _ in range(2)]
-        exact = [0.39384945283486894, 0.032142738943740555]
 
         n_iter = 10
 
@@ -64,30 +82,27 @@ def main():
         grad_G = [grad_eq1, grad_eq2, grad_eq3]
 
         x0 = [0.1 for _ in range(3)]
-        exact = [-1.0202573099857735, 0.1996053775230006, 2.2036488455303114]
 
-        n_iter = 25
+        n_iter = 30
 
     solver_newton = NonLinearSolver(G, grad_G, x0)
     solver_newton.SetMaxIteration(n_iter)
     solver_newton.SetMethod("Newton")
-    solver_newton.SetExactSolution(exact)
 
     solver_newton.Solve()
-    diff_Newton, diff_log_Newton = solver_newton.GetError()
+    results_Newton = solver_newton.GetError()
 
     solver_broyden = NonLinearSolver(G, grad_G, x0)
     solver_broyden.SetMaxIteration(n_iter)
     solver_broyden.SetMethod("Broyden")
-    solver_broyden.SetExactSolution(exact)
 
     solver_broyden.Solve()
-    diff_Broyden, diff_log_Broyden = solver_broyden.GetError()
+    results_Broyden = solver_broyden.GetError()
 
     solver_newton.WriteSolution(f"List5/Newton{system}.txt")
     solver_broyden.WriteSolution(f"List5/Broyden{system}.txt")
 
-    PlotSolution(diff_Newton, diff_Broyden, diff_log_Newton, diff_log_Broyden)
+    PlotSolution(*results_Newton, *results_Broyden)
 
 if __name__ == "__main__":
     main()

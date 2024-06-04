@@ -21,13 +21,69 @@ in which the matrix $A(\bm{x})$ is given by the derivatives of the functions tha
         \vdots & \vdots & \ddots & \vdots \\
         \frac{\partial F_n}{\partial x_1} & \frac{\partial F_n}{\partial x_2} & \cdots & \frac{\partial F_n}{\partial x_n} \\
     \end{bmatrix}.
+    \label{eq:SecantND}
 \end{equation}
 
 Matrix $A(x)$ is also known as the Jacobian matrix. In this context, the Eq. \eqref{eq:NewtonND} is rewritten and Newton's method is given by 
 \begin{equation}
-    \bm{G}(\bm{x})^{k} = \bm{x}^{k-1} - J(\bm{x}^{k-1})^{-1} \bm{F}(\bm{x}^{k-1}),
+    \bm{x}^{k} = \bm{x}^{k-1} - J(\bm{x}^{k-1})^{-1} \bm{F}(\bm{x}^{k-1}),
     \label{eq:NewtonNDJ}
 \end{equation}
 where $J(\bm{x})$ is the Jacobian matrix evaluated at $\bm{x}$. Attention to the fact that the linear system of equations $J(\bm{x}^{k-1})^{-1}\bm{F}(\bm{x}^{k-1})$ must be solved in each iteration of Newton's method.
 
+Broyden's method comes as an alternative to Newton's method in which the Jacobian matrix is not calculated, being replaced by an approximation matrix that is updated in each iteration. This method belongs to a family of methods called Quasi-Newton methods.
 
+Broyden's method idea lies in the fact a first guess $\bm{x}^0$ is given as the system's solution. Then, the next approximation $\bm{x}^1$ is evaluated by the Newton's method 
+\begin{equation*}
+    \bm{x}^1 = \bm{x}^0 - J(\bm{x}^0)^{-1} \bm{F}(\bm{x}^0),
+\end{equation*}
+from $\bm{x}^2$ on, Newton's method is not applied, instead, the Secant method is generalized to multidimensional problems. The Secant method approximates the derivative of $f(x^1)$ by 
+\begin{equation}
+    f'(x^1) \approx \frac{f(x^{1}) - f(x^{0})}{x^{1} - x^{0}}.
+\end{equation}
+
+For multidimensional problems, however, $\bm{x}^{k}$ and $\bm{x}^{k-1}$ are vectors. Therefore, the derivative of $\bm{F}(\bm{x})$ is evaluated by Eq. \eqref{eq:SecantND}, which leads to 
+\begin{equation}
+    A_1(\bm{x}^{1} - \bm{x}^0) = \bm{F}(\bm{x}^{1}) - \bm{F}(\bm{x}^{0}),
+\end{equation}
+where matrix $A_1$ can be defined as 
+\begin{equation*}
+    A_1 = J(\bm{x}^{0}) + \frac{\left[\bm{F}(\bm{x}^1) - \bm{F}(\bm{x}^0) - J(\bm{x}^0)\left(\bm{x}^1 - \bm{x}^0\right) \right]\left(\bm{x}^1 - \bm{x}^0\right)^t}{||\bm{x}^1 - \bm{x}^0||^2}, 
+\end{equation*}
+and $\bm{x}^2$ can be obtained by 
+\begin{equation*}
+    \bm{x}^2 = \bm{x}^1 - A^{-1}_1 \bm{F}(\bm{x}^1).
+\end{equation*}
+
+Broyden's method is then repeated to determine the solution until $n$ iterations are reached or the norm of the residual is smaller than a given tolerance. Generalizing the method, the update of the approximation matrix $A$ is given by
+\begin{equation}
+    A_{k+1} = A_k + \frac{\bm{y}_k - A_k\bm{s}_k}{||\bm{s}_k||^2}\bm{s}_k^t,
+    \label{eq:SecantNDUpdate}
+\end{equation}
+where $\bm{y}_k = \bm{F}(\bm{x}^{k+1}) - \bm{F}(\bm{x}^k)$ and $\bm{s}_k = \left(\bm{x}^{k+1} - \bm{x}^k\right)$. The approximated solution $\bm{x}^{k+1}$ is obtained by
+\begin{equation}
+    \bm{x}^{k+1} = \bm{x}^k - A^{-1}_{k+1} \bm{F}(\bm{x}^k).
+    \label{eq:SecantNDUpdateX}
+\end{equation}
+
+List 5 aims to implement Newton's and Broyden's methods to solve two systems of equations. The first system is given by
+\begin{equation}
+    1.
+    \begin{cases}
+        e^{xy} + x^2 + y = -1.2 \\
+        x^2 + y^2 + x = 0.55
+    \end{cases},
+    \label{eq:Sys1}
+\end{equation}
+and the second system is given by
+\begin{equation}
+    2.
+    \begin{cases}
+        -x\cos{y} = 1 \\
+        xy + z = 2 \\ 
+        e^{-z}\sin{x + y} + x^2 + y^2 = 1
+    \end{cases}.
+    \label{eq:Sys2}
+\end{equation}
+
+In the next sections, the methods are implemented and the results are discussed. The following bibliography is referred to in this work: \cite{de2000metodos,burden1997numerical}.

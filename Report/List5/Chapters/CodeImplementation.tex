@@ -1,1 +1,144 @@
 \section{NonLinearSolver Implementation} \label{sec:nonlinear_solver_implementation}
+The implementation of the NonLinearSolver class is the result of the theoretical background presented in the previous section. The fields of the class are presented in Code \ref{lst:NonLinearSolverFields}. 
+\begin{lstlisting}[language=Python, caption=NonLinearSolver class fields, label=lst:NonLinearSolverFields]
+@dataclass
+class NonLinearSolver:
+    equations: list[callable] = field(default_factory=list) 
+    gradients: list[callable] = field(default_factory=list) 
+    x0: list[float] = field(default_factory=list) 
+
+    max_iter: int = 50 
+    tolerance: float = 1e-15 
+
+    x_list: list[list] = field(init=False, default_factory=list)  
+    diff: list[float] = field(init=False, default_factory=list) 
+    diff_log: list[float] = field(init=False, default_factory=list) 
+    residual: list[float] = field(init=False, default_factory=list) 
+
+    exact_solution: list[float] = field(default_factory=list)
+\end{lstlisting}
+
+In Code \ref{lst:NonLinearSolverFields}, equations are the nonlinear system of equations to be solved, gradients are the gradients of the equations, x0 is the initial guess for the solution, max\_iter is the maximum number of iterations, and tolerance is the convergence criterion. The fields x\_list, diff, and diff\_log, residual are used to store the results of the solver. The exact\_solution field stores the exact solution for the problem, in case of having one. 
+
+The class methods are SetMaxIteration, to set the max number of iterations, SetMethod, to set whether the solver will use the Newton or the Broyden method, SetExactSolution, to set the exact solution for the problem, and GetError to get the list of differences, logarithm differences, and residuals. The implementation of the Newton method is presented in Code \ref{lst:NewtonMethod}.
+\begin{lstlisting}[language=Python, caption=Newton method implementation, label=lst:NewtonMethod]
+def Newton(self) -> None:
+    xval = self.x0
+
+    if any(self.exact_solution):
+            self.diff.append(NORM(xval - self.exact_solution))
+
+    self.SaveResidual(xval)
+                
+    for _ in range(self.max_iter):
+        G = ARRAY(list(map(lambda eq: eq(*xval), self.equations)))
+        Grad_G = ARRAY(list(map(lambda grad: grad(*xval), self.gradients)))
+
+        x_next = xval - LINSOLVE(Grad_G, G)
+
+        self.x_list.append(x_next)
+        self.SaveResidual(x_next)
+
+        if any(self.exact_solution):
+            self.diff.append(NORM(x_next - self.exact_solution))
+
+        if NORM(self.residual[-1]) < self.tolerance:
+            break
+
+        xval = x_next
+\end{lstlisting}
+
+In line 2, xval is set to the initial guess. In case of having an exact solution, line 5 evaluates the difference between it and the initial guess. Line 7 saves the residual, i.e. the system evaluated at $\bm{x}^k$ to plot the convergence. Lines 10 and 11 evaluate the equations and their gradients at xval. Line 13 solves the linear system of equations using the LINSOLVE function, from numpy module, updating the solution. If the tolerance, $10^{-15}$ by default, is reached the loop is broken. If the exact solution is set, the difference between the current solution and the exact solution is stored in the diff list. 
+
+The Broyden method is implemented in Code \ref{lst:BroydenMethod}.
+\begin{lstlisting}[language=Python, caption=Broyden method implementation, label=lst:BroydenMethod]
+def Broyden(self) -> None:
+    v0 = self.x0.copy()
+
+    G0 = ARRAY(list(map(lambda eq: eq(*v0), self.equations)))
+    Grad_G0 = ARRAY(list(map(lambda grad: grad(*v0), self.gradients)))
+
+    v1 = v0 - LINSOLVE(Grad_G0, G0)
+
+    self.x_list.append(v1)
+    self.SaveResidual(v1)
+
+    G1 = ARRAY(list(map(lambda eq: eq(*v1), self.equations)))
+
+    del_x = v1 - v0 
+
+    if any(self.exact_solution):
+        self.diff.append(NORM(v1 - self.exact_solution))
+
+    del_G = G1 - G0
+
+    for _ in range(self.max_iter):
+        grad_G1 = Grad_G0 + OUTER(del_G - Grad_G0 @ del_x, del_x) / (del_x @ del_x)
+
+        Grad_G0 = grad_G1
+
+        xnext = v1 - LINSOLVE(grad_G1, G1)
+
+        v0 = v1 
+        v1 = xnext
+
+        self.SaveResidual(v1)
+
+        G0 = G1
+        G1 = ARRAY(list(map(lambda eq: eq(*v1), self.equations)))
+
+        del_x = v1 - v0
+        del_G = G1 - G0
+
+        self.x_list.append(v1)
+
+        if any(self.exact_solution):
+            self.diff.append(NORM(v1 - self.exact_solution))
+
+        if NORM(self.residual[-1]) < self.tolerance:
+            break
+\end{lstlisting}
+
+Similarly to Newton's method, in lines 4 and 5 the equations and gradients are evaluated at the initial guess. The second guess is calculated in lines 7 and 8, following Newton's method procedure. Line 12 calculates the system of equations at the second guess and line 14 calculates the difference between the two guesses. 
+
+The Broyden method loop starts at line 21, with the evaluation of the gradient of the system of equations at the second guess, but using the initial guess gradient. This is the main difference between the Newton and Broyden methods. Line 26 solves the linear system of equations and updates the solution. The loop continues until the tolerance or the maximum number of iterations is reached.
+
+Additionally, a smaller method is implemented to coordinate the solver, as shown in Code \ref{lst:NonLinearSolverMethod}.
+\begin{lstlisting}[language=Python, caption=NonLinearSolver method, label=lst:NonLinearSolverMethod]
+def Solve(self) -> None:
+    self.method()
+
+    for i in range(1, len(self.diff)):
+        self.diff_log.append(LOG(self.diff[i]) / LOG(self.diff[i-1]))
+\end{lstlisting}
+
+The Solve method not only calls correctly either the Newton or Broyden method but also calculates the logarithm of the differences between the solutions. An example of the usage of the NonLinearSolver class is presented in Code \ref{lst:NonLinearSolverExample}.
+\begin{lstlisting}[language=Python, caption=NonLinearSolver example, label=lst:NonLinearSolverExample]
+def main():
+    n_iter = 10
+    
+    eq1 = lambda x, y: E ** (x * y) + x ** 2 + y - 1.2
+    eq2 = lambda x, y: x ** 2 + y ** 2 + x - 0.55
+
+    grad_eq1 = lambda x, y: [y * E ** (x * y) + 2 * x, x * E ** (x * y) + 1]
+    grad_eq2 = lambda x, y: [2 * x + 1, 2 * y]
+
+    G = [eq1, eq2]
+    grad_G = [grad_eq1, grad_eq2]
+
+    x0 = [.1 for _ in range(2)]
+
+    solver_newton = NonLinearSolver(G, grad_G, x0)
+    solver_newton.SetMaxIteration(n_iter)
+    solver_newton.SetMethod("Newton")
+
+    solver_newton.Solve()
+
+    solver_broyden = NonLinearSolver(G, grad_G, x0)
+    solver_broyden.SetMaxIteration(n_iter)
+    solver_broyden.SetMethod("Broyden")
+
+    solver_broyden.Solve()
+\end{lstlisting}
+
+Lines 4 to 11 define the system of equations and their gradients. Line 13 declares the initial guess, while line 14 sets the exact solution. Lines 16 to 21 create the NonLinerSolver object and set the parameters for the Newton method. The same is done by lines 23 - 28 for the Broyden method. The errors can be accessed and plotted using the GetError method and the matplotlib module.
