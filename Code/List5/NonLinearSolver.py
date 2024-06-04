@@ -88,7 +88,7 @@ class NonLinearSolver:
         """
         Solve the system of equations using Broyden method
         """
-        v0 = self.x0
+        v0 = self.x0.copy()
 
         G0 = ARRAY(list(map(lambda eq: eq(*v0), self.equations)))
         Grad_G0 = ARRAY(list(map(lambda grad: grad(*v0), self.gradients)))
@@ -99,7 +99,9 @@ class NonLinearSolver:
         G1 = ARRAY(list(map(lambda eq: eq(*v1), self.equations)))
         
         del_x = v1 - v0 
-        self.diff.append(NORM(v1 - self.exact_solution))
+
+        if any(self.exact_solution):
+            self.diff.append(NORM(v1 - self.exact_solution))
 
         del_G = G1 - G0
 
@@ -119,7 +121,9 @@ class NonLinearSolver:
             del_G = G1 - G0
 
             self.x_list.append(v1)
-            self.diff.append(NORM(v1 - self.exact_solution))
+
+            if any(self.exact_solution):
+                self.diff.append(NORM(v1 - self.exact_solution))
 
     def Solve(self) -> None:
         """
