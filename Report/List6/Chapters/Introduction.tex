@@ -1,0 +1,56 @@
+\section{Introduction} \label{sec:introduction}
+It is possible to think of a matrix as a linear transformation applied to a vector. When the matrix is applied to a vector and the resulting vector is parallel to the original vector, this vector is said to be an eigenvector of the matrix so that 
+\begin{equation}
+    A\mathbf{v} = \lambda \mathbf{v},
+    \label{eq:eigenvalue}
+\end{equation}
+in which $A$ is the matrix, $\mathbf{v}$ is the eigenvector, and $\lambda$ is the eigenvalue. 
+
+Equation \eqref{eq:eigenvalue} can be rewritten as
+\begin{equation}
+    (A - \lambda I)\mathbf{v} = 0,
+    \label{eq:eigenvalue_analytical}
+\end{equation}
+which means that, for any nonzero vector $\mathbf{v}$, Eq. \eqref{eq:eigenvalue_analytical} holds only if the determinant of the matrix $A - \lambda I$ is zero. In other words, matrix $A - \lambda I$ is singular. This is the characteristic equation of the matrix $A$ and can be used to find the eigenvalues of the matrix. 
+
+Naturally, the eigenvalues of a matrix are the roots of the characteristic equation. However, a generalization of the characteristic equation is not always possible, and therefore, its analytical solution is not always feasible. 
+
+The Power Method is an iterative method that can be used to find the most prominent eigenvalue of a matrix. The method is simple to implement and can be used to find both the eigenvalue and the eigenvector of the matrix. 
+
+For a given vector $\mathbf{y}$ linearly independent of $\mathbf{v}$, it is possible to write
+\begin{equation}
+    \mathbf{y} = \sum_{i=1}^{n}\beta_i\mathbf{v}_i,
+    \label{eq:linear_combination}
+\end{equation}
+in which $\mathbf{v}_i$ are the eigenvectors of the matrix $A$. 
+
+Multiplying Eq. \eqref{eq:linear_combination} by $A^k$ yields
+\begin{equation}
+    A^k\mathbf{y} = \sum_{i=1}^{n}\beta_i\lambda_i^k\mathbf{v}_i,
+    \label{eq:eigenvalue_power}
+\end{equation}
+and factoring Eq. \eqref{eq:eigenvalue_power} by $\lambda_1^k$ gives
+\begin{equation}
+    {A^k\mathbf{y}} = {\lambda_1^k}\sum_{i=1}^{n}\beta_i\left(\frac{\lambda_i}{\lambda_1}\right)^k\mathbf{v}_i.
+    \label{eq:eigenvalue_power_factor}
+\end{equation}
+
+Since $\lambda_1$ is the most prominent eigenvalue, the term $\left(\frac{\lambda_i}{\lambda_1}\right)^k$ tends to zero for $i \neq 1$. Therefore, the term $\sum_{i=1}^{n}\beta_i\left(\frac{\lambda_i}{\lambda_1}\right)^k\mathbf{v}_i$ tends to $\beta_1\lambda_1^k\mathbf{v}_1$ as $k$ tends to infinity. 
+
+This is the main idea behind the Power Method. The method starts with an initial guess $\mathbf{v}_0$. The matrix $A$ is multiplied by $\mathbf{v}_0$ to find the next eigenvector
+\begin{equation}
+    \mathbf{y} = A\mathbf{v}_{i-1},
+    \label{eq:y}
+\end{equation}
+the norm of the result is calculated and considered the new eigenvalue
+\begin{equation}
+    \lambda_i = \left\|\mathbf{y}\right\|,
+\end{equation}
+the new eigenvector is the previous result divided by the new eigenvalue
+\begin{equation}
+    \mathbf{v}_i = \frac{\mathbf{y}}{\lambda_i},
+\end{equation}
+
+This process is repeated until the error between the current and previous eigenvalues is smaller than a given precision. Since Eq. \eqref{eq:y} is performed at each iteration, the limit when $k$ tends to infinity is approached.
+
+In the next sections, the power method is implemented and the results are discussed. The following bibliography is referred to in this work: \cite{de2000metodos,burden1997numerical}.

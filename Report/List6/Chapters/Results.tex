@@ -1,0 +1,39 @@
+\section{Results} \label{sec:results}
+Although a fixed initial guess can be set, the results presented here are for a random initial guess. The max number of iterations is set to 50 and the precision to $10^{-14}$. Results are shown in Table \ref{tab:results_random}.
+\begin{table}[H]
+    \centering
+    \caption{Eigenvalues results for the power method.}
+    \label{tab:results_random}
+    \begin{tabular}{cccc}
+    \hline
+    \textbf{Index} & \textbf{Eigenvalue} & \textbf{Error} & \textbf{Iterations} \\ \hline
+    $\lambda_1$ & 49999999999.9982 & 3.280e-14 & 15 \\
+    $\lambda_2$ & 16666600000.00010 & 0.0 & 4 \\
+    $\lambda_3$ & -244480.84437 & 5.952e-16 & 7 \\
+    $\lambda_4$ & 10136.22809 & 2.332e-14 & 17 \\ 
+    $\lambda_5$ & 4201.35058 & 2.359-14 & 20 \\
+    $\lambda_6$ & 1882.41227 & 2.427e-14 & 16 \\ 
+    $\lambda_7$ & 593.93884 & 2.067e-14 & 16 \\ 
+    $\lambda_8$ & 193.27852 & 5.543e-14 & 5 \\
+    $\lambda_9$ & -1.80918 & 6.382e-14 & 37 \\
+    $\lambda_{10}$ & 1.20523 & 3.505e-9 & 49 \\ 
+    $\lambda_{11}$ & -1.00002 & 1.036e-11 & 49 \\
+    $\lambda_{12}$ & 1.00556 & 9.958e-14 & 14 \\ 
+    $\lambda_{13}$ & -0.35385 & 4.156e-11 & 49 \\
+    $\lambda_{14}$ & -0.27373 & 4.015e-14 & 6 \\
+    $\lambda_{15}$ & -0.00558 & 4.470e-14 & 16 \\ \hline 
+    \end{tabular}
+\end{table}
+
+The convergence of the power method is shown in Figure \ref{fig:convergence}.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{Figures/results_v0Variable.pdf}
+    \caption{Convergence of the power method.}
+    \label{fig:convergence}
+\end{figure}
+
+It is observed that almost every eigenvalue converges in less than 50 iterations. Only the 10th, 11th, and 13th do not converge. Figure \ref{fig:convergence} shows that for the 11th eigenvalue, the error finds itself in a plateau, with no significant decrease between iterations. 
+
+Results for eigenvectors as well as the decomposition of the matrix can be found in the attached files \textit{results\_v0Fixed.txt} and \textit{results\_v0Variable.txt}. Both files are in the git repository mentioned in Section \ref{sec:github}. The eigenvectors are not shown here due to their size. 
+

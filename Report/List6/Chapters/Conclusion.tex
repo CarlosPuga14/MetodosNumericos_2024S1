@@ -1,0 +1,8 @@
+\section{Conclusions} \label{sec:conclusions}
+In this list, the power method for finding eigenvalues and eigenvectors was implemented. The method was tested with a random initial guess and a fixed initial guess. The results showed that the method converges, for this specific matrix, in less than 50 iterations for almost every eigenvalue. The code implementation could recover the eigenvalues with a precision of $10^{-14}$ for the majority of the eigenvalues.
+
+One advantage of the power method is that it is simple to implement and computes both eigenvalue and eigenvector at the same time. However, it is necessary to have a full set of eigenvalues, which is not always the case. 
+
+The power method is a good starting point for finding the most prominent eigenvalue of a matrix. A generalization can be made so that the method is extended to find any eigenvalue of the matrix, not only the most prominent one. 
+
+Finally, the matrix decomposition was implemented, recovering the matrix A from the matrices $\Lambda$ and Q.

@@ -1,0 +1,133 @@
+\section{The PowerMethod Class} \label{sec:powermethod}
+The power method for finding the most prominent eigenvalue of the matrix A is implemented in the PowerMethod class. The class initializer is shown in Code \ref{lst:powermethod_init}. 
+\begin{lstlisting}[caption={PowerMethod class initializer}, label={lst:powermethod_init}, language=python]
+class PowerMethod:
+    A: np.array
+    fixed: bool
+    
+    number_of_iterations: int = 20
+    precision: float = 1e-8
+
+    size: int = field(init=False)
+    B: np.array = field(init=False)
+
+    eigenval: list[float] = field(init=False, default_factory=list)
+    eigenvec: list[float] = field(init=False, default_factory=list)
+    error: list[float] = field(init=False, default_factory=list)
+
+    LAMBDA: np.array = field(init=False, default_factory=list)
+    Q: np.array = field(init=False, default_factory=list)
+
+    def __post_init__(self):
+        self.A = ARRAY(self.A)
+        self.B = self.A.copy()
+        self.size = len(self.A)
+
+        self.LAMBDA = np.zeros_like(self.A)
+        self.Q = np.zeros_like(self.A)
+\end{lstlisting}
+
+The attribute A is the matrix for which the eigenvalues and eigenvectors are to be found. The field fixed is a bool that determines whether the power method's initial guess is random or not (in the case of fixed=True, a vector with ones is created). Size is the matrix dimension, and B is a copy of A, as shown in the post\_init method. 
+
+The maximum number of iterations is set to 20, but a function to change this value is available. The same happens to the precision, which is set to $10^{-8}$, but can be changed.
+
+The eigenvalues and eigenvectors are stored in the lists eigenval and eigenvec, respectively, as well as the error in the list error. Last but not least, the decomposition matrices $\Lambda$ and Q are stored in the attributes LAMBDA and Q, respectively.
+
+Several methods to set and get the class attributes are defined. They are SetNumberOfIterations, SetPrecision, GetEigenvector, GetEigenvalue, GetEigensystem (to get both eigenvalues and eigenvectors) and GetError. Those methods are not shown here due to their simplicity. 
+
+The power method starts when the Run method is called. The method is shown in Code \ref{lst:powermethod_run}.
+\begin{lstlisting}[caption={PowerMethod Run method}, label={lst:powermethod_run}, language=python]
+def Run(self)->None:
+    for _ in range(self.size):
+        lambda_, v, e = self.FindEigenSystem()
+
+        self.eigenval.append(lambda_)
+        self.eigenvec.append(v)
+        self.error.append(e)
+
+        self.UpdateMatrix(lambda_[-1], v[-1])
+
+    self.Decompostion()
+\end{lstlisting}
+
+The for-loop runs the FindEigenSystem method for each eigenvalue of the matrix (line 3). Here the matrix is assumed to have a full set of eigenvalues. The eigenvalues, eigenvectors, and errors of each iteration of the power method are stored in the lists eigenval, eigenvec, and error, respectively (lines 5 to 7). 
+
+Finally, the matrix B is updated to remove the found eigenvalue and respective eigenvector (line 9). The matrix A is then decomposed into the matrices $\Lambda$ and Q (line 11). More details about these methods are given next.
+
+The FindEigenSystem method is shown in Code \ref{lst:powermethod_findeigensystem}.
+\begin{lstlisting}[caption={PowerMethod FindEigenSystem method}, label={lst:powermethod_findeigensystem}, language=python]
+def FindEigenSystem(self)->tuple:
+    v0 = np.ones(self.size) if self.fixed else np.random.uniform(-1, 1, self.size)
+
+    lambda_i = [NORM(v0)]
+    v_i = [v0/lambda_i[0]]
+
+    errors = []
+
+    for i in range(1, self.number_of_iterations):
+        previous = self.B @ v_i[i-1]
+
+        lambda_i.append(NORM(previous))
+        v_i.append(previous/lambda_i[i])
+
+        sign = previous @ v_i[i-1]
+        if sign < 0:
+            lambda_i[i] *= -1
+
+        error = abs(lambda_i[i] - lambda_i[i-1])/abs(lambda_i[i])
+        errors.append(error)
+
+        if error < self.precision:
+            break
+
+    return lambda_i, v_i, errors
+\end{lstlisting}
+
+The initial guess v\_0 is set depending on the fixed attribute. The lists v\_i and lambda\_i store the eigenvectors and eigenvalues of each iteration of the method. 
+
+From line 9, the power method is properly implemented. The matrix B is multiplied by the eigenvector of the previous iteration. The norm of the result is calculated and considered the new eigenvalue. The new eigenvector is the previous result divided by the new eigenvalue. 
+
+If the dot product between the new eigenvector and the previous one is negative, the eigenvalue is multiplied by -1. The error is calculated as the difference between the current and previous eigenvalues divided by the absolute value of the current eigenvalue. If the error is smaller than the precision, the loop is broken.
+
+The UpdateMatrix method is shown in Code \ref{lst:powermethod_updatematrix}.
+\begin{lstlisting}[caption={PowerMethod UpdateMatrix method}, label={lst:powermethod_updatematrix}, language=python]
+def UpdateMatrix(self, eigenval, eigenvec)->None:
+    self.B -= eigenval * OUTER(eigenvec, eigenvec)
+\end{lstlisting}
+
+The method subtracts the outer product of the current eigenvector by itself multiplied by the current eigenvalue from the matrix B. This operation removes the just-found eigenvalue and eigenvector from the matrix. Code \ref{lst:powermethod_decomposition} shows the Decomposition method.
+\begin{lstlisting}[caption={PowerMethod Decomposition method}, label={lst:powermethod_decomposition}, language=python]
+def Decomposition(self)->None:
+    for i, eigenvalues in enumerate(self.eigenval):
+        self.LAMBDA[i, i] = eigenvalues[-1]
+
+    for i, eigenvectors in enumerate(self.eigenvec):
+            self.Q[:, i] = eigenvectors[-1]
+\end{lstlisting}
+
+The final method called by the Run function is the Decomposition method. It fills the matrices $\Lambda$ and Q with the found eigenvalues and eigenvectors, respectively. There is yet another method in the PowerMethod class, the WriteResults function, which writes the results to a file. 
+
+An example of the main function using the PowerMethod class is shown in Code \ref{lst:powermethod_main}.
+\begin{lstlisting}[caption={PowerMethod main function}, label={lst:powermethod_main}, language=python]
+def main()->None:
+    fixed = True
+    file_name = "List6/results_v0Fixed" if fixed else "List6/results_v0Variable" 
+
+    A = [ -- MATRIX --]
+
+    pm = PowerMethod(A, fixed)
+
+    pm.SetPrecision(1e-13)
+    pm.SetNumberOfIterations(50)
+
+    pm.Run()
+
+    error = pm.GetError()
+    PlotConvergence(error, f"{file_name}.pdf")
+
+    pm.WriteResults(f"{file_name}.txt")
+
+    return 
+\end{lstlisting}
+
+On line 5 the matrix A is set. Due to its size, it is not shown here. On line 7 the object pm of the PowerMethod class is created and its precision is set to $10^{-13}$ and the number of iterations to 50. The Run method is called on line 12, and the error is plotted on line 15 (plot function defined separately). The results are written in a file on line 15.
