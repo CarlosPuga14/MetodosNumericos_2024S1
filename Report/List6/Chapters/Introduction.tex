@@ -53,4 +53,25 @@ the new eigenvector is the previous result divided by the new eigenvalue
 
 This process is repeated until the error between the current and previous eigenvalues is smaller than a given precision. Since Eq. \eqref{eq:y} is performed at each iteration, the limit when $k$ tends to infinity is approached.
 
+The matrix $A$ can also be decomposed into the matrices $\Lambda$ and $Q$ so that
+\begin{equation}
+    A = Q\Lambda Q^{-1},
+    \label{eq:decomposition}
+\end{equation}
+where $\Lambda$ is a diagonal matrix with the eigenvalues of $A$ 
+\begin{equation*}
+    \Lambda = \begin{bmatrix}
+        \lambda_1 & 0 & \cdots & 0 \\
+        0 & \lambda_2 & \cdots & 0 \\
+        \vdots & \vdots & \ddots & \vdots \\
+        0 & 0 & \cdots & \lambda_n
+    \end{bmatrix},
+\end{equation*}
+and $Q$ is a matrix with the eigenvectors of $A$
+\begin{equation*}
+    Q = \begin{bmatrix}
+        \mathbf{v}_1 & \mathbf{v}_2 & \cdots & \mathbf{v}_n
+    \end{bmatrix}.
+\end{equation*}
+
 In the next sections, the power method is implemented and the results are discussed. The following bibliography is referred to in this work: \cite{de2000metodos,burden1997numerical}.
