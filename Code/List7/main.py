@@ -1,10 +1,10 @@
 from RungeKutta import RungeKutta
+from Galerkin import Galerkin
 import numpy as np
-from scipy.special import eval_legendre
 
-def RungeKuttaExample()->None:
+def RungeKuttaMethod()->None:
     """
-    Run the Runge-Kutta method for exercise 1
+    Runs the Runge-Kutta method for exercise 1
     """
     ft = lambda t, y: 1 + (t - y) ** 2
         
@@ -20,11 +20,31 @@ def RungeKuttaExample()->None:
 
     return
 
+def GalerkinMethod()->None:
+    """
+    Runs the Galerkin Method for exercise 2
+    """
+    uex = lambda x, y: (x + 1) * (y + 1) * np.arctan(x-1) * np.arctan(y-1)
+
+    dudx = lambda x, y: -((1 + x) * (1 + y) * np.arctan(1 - y)) / (1 + (1 - x) ** 2) + (1 + y) * np.arctan(1 - x) * np.arctan(1 - y)
+    dudy = lambda x, y: -((1 + x) * (1 + y) * np.arctan(1 - x)) / (1 + (1 - y) ** 2) + (1 + x) * np.arctan(1 - x) * np.arctan(1 - y)
+
+    laplacian = lambda x, y: (2 * (1 + x) * np.arctan(1 - x)) / (1 + (1 - y) ** 2) + (2 * (1 + x) * (1 - y) * (1 + y) * np.arctan(1 - x)) / (1 + (1 - y) ** 2) ** 2 + (2 * (1 + y) * np.arctan(1 - y)) / (1 + (1 - x) ** 2) + (2 * (1 + y) * (1 - x) * (1 + x) * np.arctan(1 - y)) / (1 + (1 - x) ** 2) ** 2
+
+    g = Galerkin(uex, laplacian, dudx, dudy, 5)
+
+    g.Run()
+
+    print(g.alpha)
+    print(g.error)
+
 def main()->None:
     exercise = 1
-
     if exercise == 1:
-        RungeKuttaExample()
+        RungeKuttaMethod()
+
+    if exercise == 2:
+        GalerkinMethod()
 
     else:
         raise ValueError("Invalid exercise number")
