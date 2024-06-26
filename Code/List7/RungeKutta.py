@@ -21,15 +21,6 @@ class RungeKutta:
         self.sol.append((self.t0, self.y0))
 
         self.step = int((self.tf - self.t0)/self.Dt)
-
-    def ConstantK(self, index, t, y, k)->float:
-        """
-        Evaluates the constant K of the Runge-Kutta method
-        """
-        a = t + self.c[index] * self.Dt
-        b = y + self.Dt * sum([self.a[index][j] * k[j] for j in range(index)])
-
-        return self.ft(a, b)
     
     def SetButcherTableau(self, **var)->None:
         """
@@ -93,6 +84,14 @@ class RungeKutta:
             [1/8, 3/8, 3/8, 1/8]
         ]
 
+    def ConstantK(self, index, t, y, k)->float:
+        """
+        Evaluates the constant K of the Runge-Kutta method
+        """
+        a = t + self.c[index] * self.Dt
+        b = y + self.Dt * sum([self.a[index][j] * k[j] for j in range(index)])
+
+        return self.ft(a, b)
     def RungeKuttaMethod(self)->None:
         """
         Apply the Runge-Kutta method to solve the ODE 
@@ -114,11 +113,12 @@ class RungeKutta:
             k.clear()
             self.sol.append((t, y))
 
-    def WriteResults(self, file)->None:
+    def WriteResults(self, file:str)->None:
         """
         Write the results to a file
         """
         with open(file, 'w') as f:
+            print("t y", file=f)
             for t, y in self.sol:
-                f.write(f"{t} {y}\n")
+                print(f"{t:.5f} {y:.5f}", file=f)
             
