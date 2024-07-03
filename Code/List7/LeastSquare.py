@@ -57,10 +57,64 @@ class LeastSquare:
         Approximates the set of points with a logarithmic function
         """
         self.y = np.log(self.y)
+        self.x = np.log(self.x)
 
         self.PolynomialApproximation()
 
         self.y = np.exp(self.y)
+        self.x = np.exp(self.x)
+
+    def NonLinearApproximation(self)->None:
+        """"
+        Employs the Newton-Raphson method to approximate the solution
+        """
+        def dEda(a, b, xi, yi):
+            if xi == 0:
+                return 2 * (yi - b * xi ** a) * (-b  * xi ** a)
+            
+            return 2 * (yi - b * xi ** a) * (-b * np.log(xi) * xi ** a)
+        
+        def dEdb(a, b, xi, yi):
+            return 2 * (yi - b * xi ** a) * (-xi ** a)
+        
+        def grad_dEda(a, b, xi, yi):
+            if xi == 0:
+                return [2 * b * xi ** a * (2 * b * xi ** a - yi) ** 2, 2 * xi ** a * (2 * b * xi ** a - yi)]
+            
+            return [2 * b * xi ** a * (2 * b * xi ** a - yi) * np.log(xi) ** 2, 2 * xi ** a * (2 * b * xi ** a - yi) * np.log(xi)]
+        
+        def grad_dEdb(a, b, xi, yi):
+            if xi == 0:
+                return [2 * xi ** a * (2 * b * xi ** a - yi) ** 2, 2 * xi ** (2 * a)]
+            
+            return [2 * xi ** a * (2 * b * xi ** a - yi) * np.log(xi), 2 * xi ** (2 * a)]
+
+        xval = [1, 1]
+
+        n_iter = 100
+
+        for _ in range(n_iter):
+            equations = np.zeros(2)
+            grad_eq = np.zeros((2, 2))
+
+            for x, y in zip(self.x, self.y):
+                equations += np.array([dEda(*xval, x, y), dEdb(*xval, x, y)])
+                grad_eq += np.array([grad_dEda(*xval, x, y), grad_dEdb(*xval, x, y)])
+
+            x_next = xval - np.linalg.solve(grad_eq, equations) 
+
+            residual = np.zeros(2)
+            for x, y in zip(self.x, self.y):
+                residual += np.array([dEda(*x_next, x, y), dEdb(*x_next, x, y)])
+
+            residual = np.linalg.norm(residual)
+
+            xval = x_next
+
+            if residual < 1e-14:
+                break
+
+        self.alpha = xval
 
     def CalcApproxSolution(self)->None:
         """
@@ -76,7 +130,10 @@ class LeastSquare:
                 self.approx_solution[i] = sum([self.alpha[j] * self.x[i] ** j for j in range(n)])
 
             elif self.approximation_type == "Logarithmic":
-                self.approx_solution[i] = self.alpha[0] * np.exp(self.alpha[1] * self.x[i])
+                self.approx_solution[i] = self.alpha[0] * self.x[i] ** self.alpha[1]
+
+            elif self.approximation_type == "NonLinear":
+                self.approx_solution[i] = self.alpha[1] * self.x[i] ** self.alpha[0]
 
             else: 
                 raise ValueError("Invalid approximation type")
@@ -109,12 +166,14 @@ class LeastSquare:
         """
         method = {
             "Polynomial": self.PolynomialApproximation,
-            "Logarithmic": self.LogarithmicApproximation
+            "Logarithmic": self.LogarithmicApproximation,
+            "NonLinear": self.NonLinearApproximation
         }
 
         method[self.approximation_type]()
 
-        self.Solver()
+        if self.approximation_type in ["Polynomial", "Logarithmic"]:
+            self.Solver()
 
         self.CalcApproxSolution()
 

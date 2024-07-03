@@ -209,7 +209,6 @@ class Galerkin:
         self.IntegrationRuleBC()
         for point, w in zip(self.pointsBC, self.BCweights):
             self.BasisFuntcion(1, point)
-
             for i, phi in enumerate(self.phi):
                 self.F[i] += phi * self.dudx(1, point) * w
 
