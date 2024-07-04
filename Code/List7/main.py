@@ -1,6 +1,7 @@
 from RungeKutta import RungeKutta
 from Galerkin import Galerkin
 from LeastSquare import LeastSquare
+
 import numpy as np
 
 def RungeKuttaMethod()->None:
@@ -13,7 +14,7 @@ def RungeKuttaMethod()->None:
     
     # 3/8 rule 4th order Runge-Kutta method
     rk.SetButcherTableau(method = "ThreeEights")
-    rk.RungeKuttaMethod()
+    rk.Run()
 
     print(rk.sol)
 
