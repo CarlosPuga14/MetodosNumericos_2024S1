@@ -53,8 +53,59 @@ using the following Runge-Kutta method:
     \end{tabular}
 \end{table}
 
-
-
 \subsection{Boundary Value Problem (BVP)}\label{subsec:bvp}
 
 \subsection{Least Square Method}\label{subsec:least_squares_method}
+The Least Square Method is used to approximate a set of data points to a given function. This new function now interpolates nontabulated points so that the error between the data points and the function is minimized. 
+
+The method is based on minimizing the sum of the squares of the residuals, which are the differences between the observed values and the values predicted by the model. Least Squares Methods are widely used in regression analysis, curve fitting, and solving overdetermined systems of equations.
+
+Let $E$ be the error function given by 
+\begin{equation}
+    E = \sum_{i=1}^{m} (y_i - P_n(x_i))^2,
+\end{equation}
+where $m$ is the number of data points, $n$ is the degree of the polynomial, $a_j$ are the coefficients of the polynomial, $x_i$ and $y_i$ are the data points, and $P_n(x_i)$ is the polynomial evaluated at $x_i$ given by 
+\begin{equation}
+    P_n(x) = a_0 + a_1x + a_2x^2 + \ldots + a_nx^n.
+\end{equation} 
+
+The error function is minimized by solving the linear system of equations associated with the derivatives of the error function with respect to the coefficients $a_{ij}$ of the polynomial
+\begin{equation}
+    \frac{\partial E}{\partial a_j} = 0 \rightarrow \sum_{k=0}^n a_k \sum_{i=1}^m x_i^{j+k} = \sum_{i=1}^m y_i x_i^j, \quad \forall j = 0,1,\ldots,n.
+    \label{eq:partial_error}
+\end{equation}
+
+By solving the system of equations in Eq. \eqref{eq:partial_error} the coefficients of the polynomial are found and the function that best fits the data points is obtained. However, the data points may not be perfectly interpolated by the polynomial. In this case, an exponential function can be used to fit the data points
+\begin{equation}
+    y_i = bx_i^a.
+    \label{eq:exp_fit}
+\end{equation}
+
+When the data points are fit by Eq. \eqref{eq:exp_fit}, two approaches can be taken: 1) linearize the equation by taking the logarithm of the data points or 2) use a nonlinear solver to find the coefficients $a$ and $b$ that minimize the error function.
+
+In 1), the following procedure is employed: eq. \eqref{eq:exp_fit} is transformed into
+\begin{equation}
+    \ln(y_i) = \ln(b) + a\ln(x_i),
+\end{equation}
+and the error function is minimized by solving the linear system as if it were a first-degree polynomial. Then the coefficients $a$ and $b$ are found by taking the exponential of the coefficients found in the linear system. 
+
+In 2), the error function is given by 
+\begin{equation}
+    E_{exp} = \sum_{i=1}^{m} (y_i - bx_i^a)^2,
+    \label{eq:exp_error}
+\end{equation}
+and the nonlinear system is formed by the derivatives of Eq. \eqref{eq:exp_error} with respect to the coefficients $a$ and $b$
+\begin{equation}
+    \frac{\partial E_{exp}}{\partial a} = 2\sum_{i=1}^{m} (y_i - bx_i^a)(-b\ln(x_i)x_i^a) = 0,
+    \label{eq:exp_error_a}
+\end{equation}
+\begin{equation}
+    \frac{\partial E_{exp}}{\partial b} = 2\sum_{i=1}^{m} (y_i - bx_i^a)(-x_i^a) = 0.
+    \label{eq:exp_error_b}
+\end{equation}
+
+Solving the nonlinear system of equations formed by eqs. \eqref{eq:exp_error_a} and \eqref{eq:exp_error_b} leads to the coefficients $a$ and $b$ that minimize the error function. To solve the system, any method can be used, such as the Newton method, the Broyden method, or the Secant method.
+
+It is important to mention that solving the linearization of the exponential function, although computationally less expensive, does not return the Least Squares solution. In other words, the solution of the linearization is expected to be less accurate than the solution of the nonlinear system of equations. 
+
+For exercise 3, a set of data points is given, and a code must be implemented so that the data points are fit by an exponential function (linearized and nonlinearized). The results are then compared and the error between the both approximates is calculated.
