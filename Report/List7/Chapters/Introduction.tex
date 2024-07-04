@@ -1,0 +1,60 @@
+\section{Introduction}\label{sec:introduction}
+The final list of the course on Numerical Methods in Civil Engineering is divided into three main topics: Initial Value Problem (IVP), Boundary Value Problem (BVP), and Least Square Method. All three topics are better discussed in the following sections. During the resolution of the exercises, the following bibliography is used for further understanding of the topics: \cite{de2000metodos,burden1997numerical}.
+
+\subsection{Initial Value Problem (IVP)}\label{subsec:ivp}
+In science and engineering, many problems can be modeled using differential equations. In these problems, the rate of change of one or more variables with respect to another (space or time, for example) is considered. 
+
+In the majority of cases, these differential equations are not easily solved analytically so numerical methods are used to approximate the solution. Initial Value Problems are a type of differential equation where the solution is known at a single point. The solution is then propagated to other points using numerical methods such as the Runge-Kutta method.
+
+Runge-Kutta methods, in general, are a family of numerical methods used to solve ordinary differential equations. The biggest advantage of this approach, when compared to Taylor's methods, is that they do not require the computation of the derivatives of the function, which is computationally expensive. The most common Runge-Kutta method employed is the second- and fourth-order methods, which can be expressed through the Butcher Tableau. 
+
+Let Eq. \eqref{eq:ode} be the ordinary differential equation to be solved 
+\begin{equation}
+    \frac{dy}{dx} = f(x,y), \quad y(x_0) = y_0,
+    \label{eq:ode}
+\end{equation}
+then, the Runge-Kutta methods take the form of 
+\begin{equation}
+    y_{n+1} = y_n + h\sum_{i=1}^{s}b_ik_i,
+\end{equation}
+in which $h$ is the step size, $s$ is the number of stages, $b_i$ are the weights (found in the Butcher Tableau), and $k_i$ are the intermediate values. 
+
+The intermediate values are calculated as
+\begin{equation}
+    k_i = f(x_n + c_ih, y_n + h\sum_{j=1}^{s}a_{ij}k_j),
+\end{equation}
+where $c_i$ and $a_{ij}$ are the coefficients of the Butcher Tableau. A given Butcher Tableau is given of the form 
+\begin{table}[H]
+    \centering
+    \begin{tabular}{c|ccccc}
+        $c_1$ & $a_{11}$ & $a_{12}$ & $\cdots$ & $a_{1s}$ \\
+        $c_2$ & $a_{21}$ & $a_{22}$ & $\cdots$ & $a_{2s}$ \\
+        $\vdots$ & $\vdots$ & $\vdots$ & $\ddots$ & $\vdots$ \\
+        $c_s$ & $a_{s1}$ & $a_{s2}$ & $\cdots$ & $a_{ss}$ \\
+        \hline
+        & $b_1$ & $b_2$ & $\cdots$ & $b_s$
+    \end{tabular}
+\end{table}
+
+Exercise 1 implements a class capable of reading a given Butcher Tableau and performing the Runge-Kutta method to solve the equation
+\begin{equation}
+    y' = 1 + (x-y)^2, \quad \forall 2 \leq x \leq 3, \quad y(2) = 1,
+\end{equation}
+using the following Runge-Kutta method:
+\begin{table}[H]
+    \centering
+    \begin{tabular}{c|cccc}
+        0   \\
+        1/3 & 1/3  \\
+        2/3 & -1/3 & 1  \\
+        1 & 1 & -1 & 1  \\
+        \hline
+        & 1/8 & 3/8 & 3/8 & 1/8
+    \end{tabular}
+\end{table}
+
+
+
+\subsection{Boundary Value Problem (BVP)}\label{subsec:bvp}
+
+\subsection{Least Square Method}\label{subsec:least_squares_method}
