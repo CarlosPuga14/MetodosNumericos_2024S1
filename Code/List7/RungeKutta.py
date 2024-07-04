@@ -92,7 +92,8 @@ class RungeKutta:
         b = y + self.Dt * sum([self.a[index][j] * k[j] for j in range(index)])
 
         return self.ft(a, b)
-    def RungeKuttaMethod(self)->None:
+    
+    def Run(self)->None:
         """
         Apply the Runge-Kutta method to solve the ODE 
         using a Butcher Tableau
