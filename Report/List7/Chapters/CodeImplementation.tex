@@ -1,6 +1,120 @@
 \section{Code Implementation}\label{sec:code_implementation}
+This section presents the implementation of the classes used to solve the exercises proposed. For solving IVP, the RungeKutta class is developed. For BVP, the Galerkin class is implemented. Finally, for the Least Square Method, the LeastSquare class is created.
+
+Code \ref{code:rk} shows the main function for the Runge-Kutta problem. 
+\begin{lstlisting}[caption={Main function for the Runge-Kutta problem},label={code:rk},language=python]
+def main_rk()->None:
+    ft = lambda t, y: 1 + (t - y) ** 2
+        
+    rk = RungeKutta(ft, 2, 3, 0.1, 1)
+    
+    # 3/8 rule 4th order Runge-Kutta method
+    rk.SetButcherTableau(method = "ThreeEights")
+    rk.Run()
+
+    print(rk.sol)
+
+    rk.WriteResults("List7/Results_RK.txt")
+
+    return
+\end{lstlisting}
+
+On line 2, the right-hand side of the differential equation is defined. On line 4, the RungeKutta object is created with the function, initial and final times, time step, and initial condition. The Butcher Tableau is set on line 7, and the Run method is called on line 8. The results are printed on line 10, and written to a file on line 12.
+
+The main function for the Least Squares Method is shown in Code \ref{code:ls}
+\begin{lstlisting}[caption={Main function for the Least Squares Method},label={code:ls},language=python]
+def LeastSquareMethod()->None:
+    data = [xi, yi]
+
+    squares = LeastSquare(*zip(*data), "NonLinear")
+    squares.Run()
+
+    print(f"{squares.alpha=}")
+    print(f"{squares.approx_solution=}")
+    print(f"{squares.errors=}")
+    print(f"{squares.total_error=}")
+
+    return
+\end{lstlisting}
+
+Where line 2 defines the set of data points. The LeastSquare object is created on line 4, and the run method is called on line 5. The results are printed on lines 7 to 10.
+
 
 \subsection{The RungeKutta Class}\label{subsec:rungekutta_class}
+The RungeKutta class' attributes are displayed in Code \ref{code:rungekutta_attributes}. 
+\begin{lstlisting}[caption={Attributes of the RungeKutta class},label={code:rungekutta_attributes},language=python]
+@dataclass
+class RungeKutta:
+    ft: callable
+    t0: float
+    tf: float
+    Dt: float
+    y0: float
+
+    ButcherTableau: list[float] = field(init=False, default_factory=list)
+    c: list[float] = field(init=False, default_factory=list)
+    a: list[list[float]] = field(init=False, default_factory=list)
+    b: list[float] = field(init=False, default_factory=list)
+
+    sol: list[float] = field(init=False, default_factory=list)
+    step: float = field(init=False, default=0)
+\end{lstlisting}
+
+Where f\_t is the function to be solved, t0 and tf are the initial and final times, Dt is the time step, and y0 is the initial condition. The Butcher Tableau is a list of lists containing the coefficients of the Runge-Kutta method. The c, a, and b lists are the coefficients of the Butcher Tableau. The sol list stores the solution to the problem, and the step attribute is used to store the current time step.
+
+As methods, the class has the SetButcherTableau, ConstantK, and Run. Other methods such as the EulerMethod, RK2, RK4, ThreeEightsRule, and WriteResults are also implemented. 
+
+The SetButcherTableau method is shown in Code \ref{code:setbutchertableau_method}
+\begin{lstlisting}[caption={SetButcherTableau method},label={code:setbutchertableau_method},language=python]
+def SetButcherTableau(self, **var)->None:
+    butcher = {"euler": self.EulerMethod(), "rk2": self.RK2(), "rk4": self.RK4(), "ThreeEights": self.ThreeEighthRule()}
+
+    if 'method' in var:
+        butcher[var['method']]
+
+    elif 'ButcherTableau' in var:
+        self.ButcherTableau = var['ButcherTableau']
+
+    else: 
+        raise ValueError("Invalid Butcher Tableau")
+\end{lstlisting}
+
+This method sets the Butcher Tableau according to the method chosen. The Euler method, Runge-Kutta 2nd order, Runge-Kutta 4th order, and Three-Eighths Rule are implemented. The user can also set the Butcher Tableau manually, by passing the desired rule. 
+
+The ConstantK method is shown in Code \ref{code:constantk_method}
+\begin{lstlisting}[caption={ConstantK method},label={code:constantk_method},language=python]
+def ConstantK(self, index, t, y, k)->float:
+    a = t + self.c[index] * self.Dt
+    b = y + self.Dt * sum([self.a[index][j] * k[j] for j in range(index)])
+
+    return self.ft(a, b)
+\end{lstlisting}
+
+This method is responsible for evaluating the intermediate values of the Runge-Kutta method. The index is the stage of the method, t is the current step time, y is the current value of the function, and k is the list of intermediate values. The return is the function evaluated at the intermediate point.
+
+Finally, the Run method is shown in Code \ref{code:run_method}
+\begin{lstlisting}[caption={Run method},label={code:run_method},language=python]
+def Run(self)->None:
+    t = self.t0
+    y = self.y0
+
+    self.c, self.a, self.b = self.ButcherTableau
+
+    k = []
+    for _ in range(self.step):
+        for i in range(len(self.c)):
+            k.append(self.ConstantK(i, t, y, k))
+
+        y += self.Dt * sum([self.b[j] * k[j] for j in range(len(k))])
+        t += self.Dt
+
+        k.clear()
+        self.sol.append((t, y))
+\end{lstlisting}
+
+The Run method performs the Runge-Kutta method for a given Butcher Tableau. On lines 2 and 3, the initial values of t and y are set. The Butcher Tableau coefficients (c, a, and b) are unpacked on line 5. 
+
+From line 8 on, the method iterates over the number of steps. For each step, the intermediate values are calculated on line 10. The new value of y is calculated on line 12, and the new value of t is calculated on line 13. The intermediate values are cleared on line 15, and the t and y values are appended to the sol list on line 16.
 
 \subsection{The Galerkin Class}\label{subsec:galerkin_class}
 
