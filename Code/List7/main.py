@@ -3,6 +3,7 @@ from Galerkin import Galerkin
 from LeastSquare import LeastSquare
 
 import numpy as np
+from matplotlib import pyplot as plt
 
 def RungeKuttaMethod()->None:
     """
@@ -84,20 +85,42 @@ def LeastSquareMethod()->None:
     [5.96, 2.4]
     ]
 
-    sqaures = LeastSquare(*zip(*data), "NonLinear")
-    sqaures.Run()
+    squares_non = LeastSquare(*zip(*data), "NonLinear")
+    squares_non.Run()
+
+    squares_log = LeastSquare(*zip(*data), "Logarithmic")
+    squares_log.Run()
+
+    dx = [d[0] for d in data]
+    dy = [d[1] for d in data]
+
+    plt.figure()
+    plt.scatter(dx, dy, color = "black", label = "Data")
+    plt.scatter(dx, squares_non.approx_solution, color = "red", label = "Non-Linear Approximation")
+    plt.scatter(dx, squares_log.approx_solution, color = "blue", label = "Logarithmic Approximation")
+    plt.grid(True)
+    plt.xlabel(r"$x_i$")
+    plt.ylabel(r"$y_i$")
+    plt.legend()
+    plt.show()
+
+    print(squares_non.alpha)
+    print(squares_non.total_error)
+    print()
+    print(squares_log.alpha)
+    print(squares_log.total_error)
 
     return
 
 def main()->None:
-    exercise = 2
+    exercise = 3
     if exercise == 1:
         RungeKuttaMethod()
 
-    if exercise == 2:
+    elif exercise == 2:
         GalerkinMethod()
 
-    if exercise == 3:
+    elif exercise == 3:
         LeastSquareMethod()
 
     else:

@@ -179,11 +179,4 @@ class LeastSquare:
 
         self.Error()
 
-        print(f"{self.K=}")
-        print(f"{self.F=}")
-        print(f"{self.alpha=}")
-        print(f"{self.approx_solution=}")
-        print(f"{self.errors=}")
-        print(f"{self.total_error=}")
-
         return

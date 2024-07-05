@@ -3,7 +3,7 @@ This section presents the implementation of the classes used to solve the exerci
 
 Code \ref{code:rk} shows the main function for the Runge-Kutta problem. 
 \begin{lstlisting}[caption={Main function for the Runge-Kutta problem},label={code:rk},language=python]
-def main_rk()->None:
+def RungeKuttaMethod()->None:
     ft = lambda t, y: 1 + (t - y) ** 2
         
     rk = RungeKutta(ft, 2, 3, 0.1, 1)
@@ -15,11 +15,27 @@ def main_rk()->None:
     print(rk.sol)
 
     rk.WriteResults("List7/Results_RK.txt")
-
-    return
 \end{lstlisting}
 
 On line 2, the right-hand side of the differential equation is defined. On line 4, the RungeKutta object is created with the function, initial and final times, time step, and initial condition. The Butcher Tableau is set on line 7, and the Run method is called on line 8. The results are printed on line 10, and written to a file on line 12.
+
+The main function for the Galerkin Method is shown in Code \ref{code:gal}
+\begin{lstlisting}[caption={Main function for the Galerkin Method},label={code:gal},language=python]
+def GalerkinMethod()->None:
+    uex = "exact solution"
+
+    dudx = "exact derivative x"
+    dudy = "exact derivative y"
+
+    b = "source term -> negative of the laplacian of the exact solution"
+
+    g = Galerkin(uex, b, dudx, dudy, 5)
+
+    g.Run()
+
+    print(g.alpha)
+    print(g.error)
+\end{lstlisting}
 
 The main function for the Least Squares Method is shown in Code \ref{code:ls}
 \begin{lstlisting}[caption={Main function for the Least Squares Method},label={code:ls},language=python]
@@ -33,12 +49,11 @@ def LeastSquareMethod()->None:
     print(f"{squares.approx_solution=}")
     print(f"{squares.errors=}")
     print(f"{squares.total_error=}")
-
-    return
 \end{lstlisting}
 
-Where line 2 defines the set of data points. The LeastSquare object is created on line 4, and the run method is called on line 5. The results are printed on lines 7 to 10.
+In which line 2 sets the exact solution (in this case a lambda function can be used). Lines 4 and 5 set the exact derivative of $u_{ex}$ in x and y, respectively. Line 7 sets the source term, which in this case is the negative of the laplacian of the exact solution. The Galerkin object is created on line 9, and the Run method is called on line 11. The results are printed on lines 13 and 14.
 
+Where line 2 defines the set of data points. The LeastSquare object is created on line 4, and the run method is called on line 5. Note that in this example, a non-linear approximation is set. The results are printed on lines 7 to 10.
 
 \subsection{The RungeKutta Class}\label{subsec:rungekutta_class}
 The RungeKutta class' attributes are displayed in Code \ref{code:rungekutta_attributes}. 
@@ -117,5 +132,237 @@ The Run method performs the Runge-Kutta method for a given Butcher Tableau. On l
 From line 8 on, the method iterates over the number of steps. For each step, the intermediate values are calculated on line 10. The new value of y is calculated on line 12, and the new value of t is calculated on line 13. The intermediate values are cleared on line 15, and the t and y values are appended to the sol list on line 16.
 
 \subsection{The Galerkin Class}\label{subsec:galerkin_class}
+The Galerkin class' attributes are displayed in Code \ref{code:galerkin_attributes}.
+\begin{lstlisting}[caption={Attributes of the Galerkin class},label={code:galerkin_attributes},language=python]
+@dataclass
+class Galerkin:
+    u_exact: callable
+    source_term: callable
+    dudx: callable
+    dudy: callable
+    p_order: int
+
+    n_points: float = field(init=False)
+    xi: list[float] = field(init=False, default_factory=list)
+    phi: list[float] = field(init=False, default_factory=list)
+    dphi: list[float] = field(init=False, default_factory=list)
+
+    points: list[float] = field(init=False, default_factory=list)
+    weights: list[float] = field(init=False, default_factory=list)
+    pointsBC: list[float] = field(init=False, default_factory=list)
+    weightsBC: list[float] = field(init=False, default_factory=list)
+
+    K: list[float] = field(init=False, default_factory=list)
+    F: list[float] = field(init=False, default_factory=list)
+    alpha: list[float] = field(init=False, default_factory=list)
+
+    error: float = field(init=False, default=0.0)
+\end{lstlisting}
+
+In which u\_exact is the exact solution, source\_term is the source term, dudx and dudy are the derivatives of the exact solution, and p\_order is the polynomial order. The n\_points attribute is the number of points used to evaluate the integral. The xi, phi, and dphi lists are the points, basis functions, and derivatives of the basis functions, respectively. 
+
+The points and weights are the Gauss-Legendre points and weights, and the pointsBC and weightsBC are the points and weights for the boundary conditions. The K and F lists are the matrices used to solve the linear system of equations, and the alpha list is the solution for the coefficients. The error attribute is the error of the approximation.
+
+The first method is the Run function, which coordinates the Galerkin Method through the other methods. The Run method is shown in Code \ref{code:run_method_gal}.
+\begin{lstlisting}[caption={Run method},label={code:run_method_gal},language=python]
+def Run(self)->None:
+    self.Contribute()
+    self.BodyForce()
+    self.ContributeBC()
+
+    self.alpha = np.linalg.solve(self.K, self.F)
+
+    self.Error()
+\end{lstlisting}
+
+The Run method is simple. On line 2, it calls the Contribute method, to evaluate the contribution of each integration point to the stiffness matrix. On line 3, the BodyForce method is called so that the contribution of the source term is added to the load vector. Line 4 calls the ContributeBC method, which evaluates the contribution of the boundary conditions. The coefficient alphas are calculated on line 6 as the solution of the linear system. Finally, the error is calculated on line 8.
+
+The Contribute method is shown in Code \ref{code:contribute_method}.
+\begin{lstlisting}[caption={Contribute method},label={code:contribute_method},language=python]
+def Contribute(self)->None:
+    self.SetNppoints((self.p_order * 2 + 1)/2)
+    self.IntegrationRuleDomain()
+
+    for (x, y), w in zip(self.points, self.weights):
+        self.BasisFuntcion(x, y)
+
+        if not len(self.K):
+            self.K = np.zeros((len(self.phi), len(self.phi)))
+
+        for i, dphi_i in enumerate(self.dphi):
+            for j, dphi_j in enumerate(self.dphi):
+                self.K[i, j] += np.dot(dphi_i, dphi_j) * w
+\end{lstlisting}
+
+On lines 2 and 3 the integration rule for two dimensions is set. All integration points and respective weights are obtained from the IntegrationRuleDomain method. On line 6, the basis functions are calculated for each integration point. If the stiffness matrix is empty, it is initialized on line 8. The stiffness matrix is calculated on lines 11 to 13. 
+
+The code for BasisFunction and IntegrationRuleDomain is not shown here due to its length. However, in List 2 the numerical integration rule was extensively discussed, and the basis functions are calculated from the Legendre polynomials. For more information, see the code in the Appendix \ref{sec:github}.
+
+The BodyForce method is shown in Code \ref{code:bodyforce_method}.
+\begin{lstlisting}[caption={BodyForce method},label={code:bodyforce_method},language=python]
+def BodyForce(self)->None:
+    self.SetNppoints(10)
+    self.IntegrationRuleDomain()
+    for (x, y), w in zip(self.points, self.weights):
+        self.BasisFuntcion(x, y)
+
+        if not len(self.F):
+            self.F = np.zeros(len(self.phi))
+
+        for i, phi in enumerate(self.phi): 
+            self.F[i] += phi * self.source_term(x, y) * w
+\end{lstlisting}
+
+On lines 2 and 3 the integration rule for two dimensions is set. Attention to the fact that, since the source term is a trigonometric function, more integration points are required to evaluate the integral. The basis functions are calculated for each integration point on line 5. If the load vector is empty, it is initialized on line 8. The load vector is calculated on line 11.
+
+The ContributeBC method is shown in Code \ref{code:contributebc_method}.
+\begin{lstlisting}[caption={ContributeBC method},label={code:contributebc_method},language=python]
+def ContributeBC(self)->list[float]:
+    self.IntegrationRuleBC()
+    for point, w in zip(self.pointsBC, self.BCweights):
+        self.BasisFuntcion(1, point)
+        for i, phi in enumerate(self.phi):
+            self.F[i] += phi * self.dudx(1, point) * w
+
+        self.BasisFuntcion(point, 1)
+        for i, phi in enumerate(self.phi):
+            self.F[i] += phi * self.dudy(point, 1) * w
+\end{lstlisting}
+
+On line 2, the integration rule for one dimension is set. The basis functions are calculated for each integration point on line 4. On lines 5 and 6, the boundary condition on the right is imposed and on lines 9 and 10 it is imposed on the top of the domain. 
+
+Finally, the Error method calculates the error for the Galerkin Method. The Error method is shown in Code \ref{code:error_method_gal}.
+\begin{lstlisting}[caption={Error method},label={code:error_method_gal},language=python]
+def Error(self)->None:
+    self.SetNppoints(10)
+    self.IntegrationRuleDomain()
+
+    for (x, y), w in zip(self.points, self.weights):
+        self.BasisFuntcion(x, y)
+            
+        u_h = self.alpha @ self.phi
+
+        self.error += ((self.u_exact(x, y) - u_h) ** 2) * w 
+
+    self.error = np.sqrt(self.error)
+\end{lstlisting}
 
 \subsection{The LeastSquare Class}\label{subsec:leastsquares_class}
+The LeastSquare class' attributes are displayed in Code \ref{code:leastsquare_attributes}.
+\begin{lstlisting}[caption={Attributes of the LeastSquare class},label={code:leastsquare_attributes},language=python]
+@dataclass
+class LeastSquare:
+    x: list
+    y: list 
+    approximation_type: str
+    
+    order: int = 1
+
+    K: list = field(init=False, default_factory=list)
+    F: list = field(init=False, default_factory=list)
+    alpha: list = field(init=False, default_factory=list)
+
+    approx_solution: list = field(init=False, default_factory=list)
+
+    errors: list = field(init=False, default_factory=list)
+    total_error: float = field(init=False, default=0.0)
+\end{lstlisting}
+
+Where x and y are the set of data points, the approximation type defines whether the approximation will be polynomial, logarithmic or non-linear. If a polynomial is set, an order can be chosen as well. The K and F are the matrices used to solve the linear system of equations and alpha is the solution for the coefficients. The approx\_solution is the function evaluated at the data points, reconstructed by using the alpha coefficients, the errors list is the error for each data point, and the total\_error is the sum of all errors. 
+
+The class contains two set methods: SetOrder, for the polynomial approximation order, and SetMethod, for the approximation type. There are also the PolynomialApproximation, LogarithmicApproximation, and NonLinearApproximation methods, which are used to find the alpha coefficients for each approximation type. 
+
+The PolynomialApproximation method is shown in Code \ref{code:polynomialapproximation_method}.
+\begin{lstlisting}[caption={PolynomialApproximation method},label={code:polynomialapproximation_method},language=python]
+def PolynomialApproximation(self)->None:
+    n = self.order + 1
+    m = len(self.x)
+
+    self.K = np.zeros((n, n))
+    self.F = np.zeros(n)
+
+    for i in range(n):
+        self.F[i] = sum([self.y[k] * self.x[k] ** i for k in range(m)])
+
+        for j in range(n):
+            self.K[i, j] = sum([self.x[k] ** (i + j) for k in range(m)])
+\end{lstlisting}
+
+The LogarithmicApproximation method is shown in Code \ref{code:logarithmicapproximation_method}.
+\begin{lstlisting}[caption={LogarithmicApproximation method},label={code:logarithmicapproximation_method},language=python]
+def LogarithmicApproximation(self)->None:
+    self.y = np.log(self.y)
+    self.x = np.log(self.x)
+
+    self.PolynomialApproximation()
+
+    self.y = np.exp(self.y)
+    self.x = np.exp(self.x)
+\end{lstlisting}
+
+Note that, since the logarithmic approximation linearizes the data, the y and x values are transformed to their natural logarithm. After the approximation is found, the y and x values are transformed back to their original values. The NonLinearApproximation method is similar to the NonLinearSolver class, presented in List 5. For more information, see the code in the Appendix \ref{sec:github}.
+
+The Run method called in the main function is the one responsible for maintaining the flow of the program. It is shown in Code \ref{code:run_method}.
+\begin{lstlisting}[caption={Run method},label={code:run_method},language=python]
+def Run(self)->None:
+    method = {
+        "Polynomial": self.PolynomialApproximation,
+        "Logarithmic": self.LogarithmicApproximation,
+        "NonLinear": self.NonLinearApproximation
+    }
+
+    method[self.approximation_type]()
+
+    if self.approximation_type in ["Polynomial", "Logarithmic"]:
+        self.Solver()
+
+    self.CalcApproxSolution()
+
+    self.Error()
+\end{lstlisting}
+
+On lines 2 to 6, a dictionary is created to relate the approximation type to the method that approximates the data points. On line 8, the method is called. If the approximation type is polynomial or logarithmic, the Solver method is called on line 11. The approximated solution is evaluated on line 13 and the error is calculated on line 15. 
+
+The Solver method is presented in Code \ref{code:solver_ls}
+\begin{lstlisting}[caption={Solver method},label={code:solver_ls},language=python]
+def Solver(self)->None:
+    self.alpha = np.linalg.solve(self.K, self.F)
+
+    if self.approximation_type == "Logarithmic":
+        self.alpha[0] = np.exp(self.alpha[0])
+\end{lstlisting}
+
+Note that, if the approximation is logarithmic, the alpha coefficient "b" is transformed to its exponential value. The CalcApproxSolution method is shown in Code \ref{code:calcapproxsolution_method}.
+\begin{lstlisting}[caption={CalcApproxSolution method},label={code:calcapproxsolution_method},language=python]
+def CalcApproxSolution(self)->None:
+    m = len(self.x)
+    n = self.order + 1
+
+    self.approx_solution = np.zeros(m)
+
+    for i in range(m):
+        if self.approximation_type == "Polynomial":
+            self.approx_solution[i] = sum([self.alpha[j] * self.x[i] ** j for j in range(n)])
+
+        elif self.approximation_type == "Logarithmic":
+            self.approx_solution[i] = self.alpha[0] * self.x[i] ** self.alpha[1]
+
+        elif self.approximation_type == "NonLinear":
+            self.approx_solution[i] = self.alpha[1] * self.x[i] ** self.alpha[0]
+
+        else: 
+            raise ValueError("Invalid approximation type")
+\end{lstlisting}
+
+The CalcApproxSolution method evaluates the approximated solution for each data point depending on the approximation type. Finally, the Error method calculates the error for each data point and the total error. The Error method is shown in Code \ref{code:error_method}.
+\begin{lstlisting}[caption={Error method},label={code:error_method},language=python]
+def Error(self)->None:
+    m = len(self.x)
+
+    self.errors = np.zeros(m)
+
+    for i in range(m):
+        self.errors[i] = (self.y[i] - self.approx_solution[i]) ** 2
+
+    self.total_error = sum(self.errors)
+\end{lstlisting}
